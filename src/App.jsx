@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import Home from './home/Home'
 import ContactFlow from './contact/ContactFlow'
+import Projects from './projects/Projects'
+import ProjectDetail from './projects/ProjectDetail'
 import './fonts.css'
 import './index.css'
 import './home/home.css'
@@ -27,12 +29,17 @@ export default function App() {
     window.location.hash = href
     setTimeout(() => setVeil(0), 200) // reveal the new page out of the dark
   }, [])
+  useEffect(() => { window.scrollTo(0, 0) }, [route]) // every page starts at the top
   useEffect(() => {
     const on = () => setRoute(read())
     window.addEventListener('hashchange', on)
     return () => window.removeEventListener('hashchange', on)
   }, [])
-  const page = route === 'contact' ? <ContactFlow /> : route === 'home' ? <Home onVeil={onVeil} onNavigate={onNavigate} /> : <Soon name={route} />
+  const page = route === 'contact' ? <ContactFlow />
+    : route === 'home' ? <Home onVeil={onVeil} onNavigate={onNavigate} />
+    : route === 'projects' ? <Projects />
+    : route.startsWith('project/') ? <ProjectDetail id={route.slice(8)} />
+    : <Soon name={route} />
   return (
     <>
       {page}
