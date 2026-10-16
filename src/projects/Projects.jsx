@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import { asset } from '../asset'
 import { CATEGORIES, LIME, ORANGE, RAIL } from './data'
 import Gallery from './Gallery'
+import useIsMobile from '../useIsMobile'
 import './projects.css'
 
 // Five 1440 x 1024 pages that stack as you scroll: each page slides up over the previous one,
@@ -62,7 +63,50 @@ function CategoryPage({ cat, onOpen }) {
   )
 }
 
-function Section({ index, vh, scrollY, fit, children }) {
+
+// ---- phone layouts: real responsive stacks (not the scaled desktop stage), sized to fit one screen ----
+function MobileStart({ next }) {
+  return (
+    <div className="m-page">
+      <img className="m-logo" src={asset('home/logo.svg')} alt="KOMO.IS" draggable={false} />
+      <div className="m-hero">
+        <h1 className="display">FOR EVERYONE BUT NOTANYONE</h1>
+        <p className="mono">Through the works, ideas and expression comes into the stories</p>
+      </div>
+      <div className="m-row">
+        <div className="m-chip orange"><b className="display">2018 - PRESENT</b></div>
+        <div className="m-chip lime"><b className="display">GRAPHIC DESIGN<br />UIUX DESIGN<br />PACKAGING<br />EDITORIAL</b></div>
+      </div>
+      <button className="m-cue mono" onClick={next}>SCROLL DOWN
+        <svg width="20" height="16" viewBox="0 0 22 18" aria-hidden="true"><path d="M1 1h20L11 17z" fill="currentColor" /></svg>
+      </button>
+    </div>
+  )
+}
+
+function MobileCategory({ cat, onOpen }) {
+  const hero = cat.tiles.find((t) => t.img) || { img: cat.small.img } // Editorial's first tile is an empty cream block
+  return (
+    <div className="m-page">
+      <img className="m-closeup" src={asset(`projects/${hero.img}.webp`)} alt="" draggable={false} />
+      <div className="m-def" style={{ background: cat.def.bg }}>
+        <h3 className="mono">{cat.def.head}</h3>
+        <small className="mono">NOUN:</small>
+        <p className="mono">{cat.def.body}</p>
+      </div>
+      <button className="m-latest" onClick={onOpen} aria-label={`Open the ${cat.title} gallery`}>
+        <span className="m-latest-top mono"><span>LATEST</span><span>DESIGN</span></span>
+        <span className="m-latest-title display">{cat.title}</span>
+        <span className="m-latest-sub mono">Projects done since 2018</span>
+        <span className="m-fan" aria-hidden="true"><i style={{ background: ORANGE }} /><i style={{ background: LIME }} /><i style={{ background: '#2e4c8c' }} /></span>
+        <span className="m-open mono">OPEN GALLERY →</span>
+      </button>
+      <p className="m-footer mono">{cat.footer[0]}<br />{cat.footer[1]}</p>
+    </div>
+  )
+}
+
+function Section({ index, vh, scrollY, fit, mobile, children }) {
   // progress 0..1 while the NEXT page rises over this one: this page shrinks and dims
   const p = useTransform(scrollY, (y) => clamp((y - index * vh) / vh))
   const scale = useTransform(p, [0, 1], [1, 0.93])
@@ -70,7 +114,7 @@ function Section({ index, vh, scrollY, fit, children }) {
   return (
     <section className={'proj-section' + (index > 0 ? ' over' : '')} style={{ zIndex: index + 1 }}>
       <motion.div className="proj-inner" style={{ scale, filter }}>
-        <div className="proj-stage" style={{ width: W, height: H, transform: `translate(-50%, -50%) scale(${fit})` }}>{children}</div>
+        {mobile ? children : <div className="proj-stage" style={{ width: W, height: H, transform: `translate(-50%, -50%) scale(${fit})` }}>{children}</div>}
       </motion.div>
     </section>
   )
@@ -82,6 +126,7 @@ export default function Projects() {
   const [fit, setFit] = useState(1)
   const [current, setCurrent] = useState(0)
   const [open, setOpen] = useState(null) // category whose gallery is open
+  const mobile = useIsMobile()
 
   useEffect(() => {
     const update = () => { setVh(window.innerHeight); setFit(Math.min(window.innerWidth / W, window.innerHeight / H)) }
@@ -106,10 +151,10 @@ export default function Projects() {
         ))}
       </nav>
 
-      <Section index={0} vh={vh} scrollY={scrollY} fit={fit}><StartPage next={() => jump(1)} /></Section>
+      <Section index={0} vh={vh} scrollY={scrollY} fit={fit} mobile={mobile}>{mobile ? <MobileStart next={() => jump(1)} /> : <StartPage next={() => jump(1)} />}</Section>
       {CATEGORIES.map((cat, i) => (
-        <Section key={cat.id} index={i + 1} vh={vh} scrollY={scrollY} fit={fit}>
-          <CategoryPage cat={cat} onOpen={() => setOpen(cat)} />
+        <Section key={cat.id} index={i + 1} vh={vh} scrollY={scrollY} fit={fit} mobile={mobile}>
+          {mobile ? <MobileCategory cat={cat} onOpen={() => setOpen(cat)} /> : <CategoryPage cat={cat} onOpen={() => setOpen(cat)} />}
         </Section>
       ))}
 

@@ -100,3 +100,67 @@
 @media (max-width: 700px) { .d-grid { grid-template-columns: 1fr; } }
 
 @media (prefers-reduced-motion: reduce) { .scroll-cue svg { animation: none; } .fan i, .latest { transition: none; } }
+
+/* ============ phones and narrow windows ============ */
+.m-page { position: absolute; inset: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; padding: clamp(60px, 9vh, 76px) 64px max(54px, env(safe-area-inset-bottom)) 16px; color: #1e1e1e; }
+.m-logo { align-self: center; height: 36px; flex: none; filter: brightness(0) invert(1); margin: 2px 0 2px -24px; }
+.m-hero { position: relative; flex: 1 1 auto; min-height: 150px; background: var(--lime); border-radius: 12px; padding: 16px 18px; }
+.m-hero h1 { font-size: clamp(26px, 8.6vw, 40px); line-height: 1.12; letter-spacing: .02em; color: #1e1e1e; }
+.m-hero p { position: absolute; left: 18px; right: 18px; bottom: 16px; margin: 0; font-size: 14px; line-height: 1.5; letter-spacing: .06em; }
+.m-row { display: flex; gap: 12px; flex: none; }
+.m-chip { flex: 1; display: grid; place-items: center; text-align: center; min-height: 92px; border-radius: 12px; padding: 10px; }
+.m-chip.orange { background: var(--orange); flex: 0 0 38%; }
+.m-chip.lime { background: var(--lime); }
+.m-chip b { font-size: clamp(14px, 4.2vw, 19px); line-height: 1.22; font-weight: 400; letter-spacing: .05em; color: #1e1e1e; }
+.m-cue { flex: none; display: flex; align-items: center; justify-content: center; gap: 14px; height: 52px; font-size: 17px; letter-spacing: .14em; color: #fff; background: #263d74; border: 2px solid rgba(255,255,255,.85); border-radius: 28px; cursor: pointer; }
+.m-cue svg { animation: cue 1.8s ease-in-out infinite; }
+
+.m-closeup { display: block; width: 100%; flex: none; aspect-ratio: 588 / 317; object-fit: cover; border-radius: 12px; }
+.m-def { flex: none; border-radius: 12px; padding: 12px 16px 14px; }
+.m-def h3 { margin: 0; font-size: 19px; line-height: 1.1; font-weight: 400; letter-spacing: .02em; }
+.m-def small { display: block; margin: 4px 0 3px; font-size: 12px; letter-spacing: .12em; }
+.m-def p { margin: 0; font-size: 13.5px; line-height: 1.35; }
+.m-latest { position: relative; flex: 1 1 auto; min-height: 190px; border: 0; border-radius: 18px; background: var(--cream); cursor: pointer; padding: 0; overflow: hidden; text-align: center; }
+.m-latest > span { position: absolute; left: 0; right: 0; }
+.m-latest-top { top: 12px; display: flex; justify-content: space-between; padding: 0 16px; font-size: 14px; letter-spacing: .08em; color: #000; }
+.m-latest-title { top: 40px; font-size: clamp(26px, 8.4vw, 40px); line-height: 1.1; color: #000; }
+.m-latest-sub { top: calc(40px + clamp(30px, 9.2vw, 44px) + 6px); font-size: 14px; letter-spacing: .04em; color: #000; }
+.m-fan { left: 50%; right: auto; bottom: 62px; width: 0; height: 0; }
+.m-fan i { position: absolute; left: -46px; bottom: 0; width: 92px; height: 108px; border-radius: 10px; border: 4px solid #fff; box-shadow: 0 6px 14px rgba(0,0,0,.2); }
+.m-fan i:nth-child(1) { transform: translateX(-30px) rotate(-10deg); }
+.m-fan i:nth-child(2) { transform: translateY(-6px) rotate(2deg); }
+.m-fan i:nth-child(3) { transform: translateX(30px) rotate(11deg); }
+.m-open { bottom: 14px; left: 50%; right: auto; transform: translateX(-50%); padding: 9px 18px; font-size: 14px; letter-spacing: .1em; color: var(--navy); background: var(--lime); border-radius: 20px; white-space: nowrap; }
+.m-footer { position: absolute; left: 0; right: 0; bottom: max(14px, env(safe-area-inset-bottom)); margin: 0; text-align: center; font-size: 12.5px; line-height: 1.4; letter-spacing: .08em; color: #fff; }
+@media (max-height: 700px) { .m-latest { min-height: 160px; } .m-fan { display: none; } .m-footer { display: none; } .m-page { padding-bottom: 20px; } }
+
+/* rail stays where it is, just a little slimmer */
+@media (max-width: 820px) {
+  .rail { right: 8px; padding: 10px 8px; gap: 11px; }
+  .rail-count { font-size: 12px; letter-spacing: .06em; }
+  .rail-dot { width: 12px; height: 12px; }
+}
+
+/* gallery on phones: scrollable two-column grid */
+.m-gallery { position: fixed; inset: 0; z-index: 200; overflow-y: auto; background: var(--navy); padding: max(18px, env(safe-area-inset-top)) 16px 32px; box-sizing: border-box; }
+.mg-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.mg-eyebrow { margin: 0; font-size: 15px; letter-spacing: .1em; color: var(--cream); }
+.mg-heading { margin: 2px 0 0; font-size: clamp(30px, 10vw, 44px); line-height: 1; color: var(--cream); }
+.mg-close { display: flex; align-items: center; gap: 10px; padding: 11px 18px; font-size: 16px; letter-spacing: .08em; color: var(--cream); background: var(--orange); border: 0; border-radius: 24px; cursor: pointer; }
+.mg-sub { margin: 10px 0 18px; font-size: 20px; color: var(--cream); opacity: .85; }
+.mg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 14px; }
+.mg-card { display: block; background: var(--cream); border-radius: 14px; padding: 8px 8px 12px; box-shadow: 0 10px 22px rgba(0,0,0,.35); text-decoration: none; color: var(--navy); }
+.mg-img { position: relative; display: block; width: 100%; aspect-ratio: 302 / 250; border-radius: 9px; }
+.mg-img b { position: absolute; left: 10px; top: 6px; font-size: 24px; font-weight: 400; color: var(--cream); }
+.mg-title { display: block; margin: 8px 4px 0; font-size: 21px; line-height: 1.1; }
+.mg-meta { display: block; margin: 4px 4px 0; font-size: 12px; opacity: .75; letter-spacing: .02em; }
+
+/* phone "Latest" card: simple flex column (replaces the absolute positioning above) */
+.m-latest { display: flex; flex-direction: column; align-items: center; padding: 12px 14px 14px; }
+.m-latest > span { position: static; left: auto; right: auto; }
+.m-latest > .m-latest-top { width: 100%; padding: 0; font-size: 14px; }
+.m-latest > .m-latest-title { margin-top: 10px; font-size: clamp(18px, 7vw, 30px); line-height: 1.1; white-space: nowrap; }
+.m-latest > .m-latest-sub { margin-top: 4px; font-size: 14px; }
+.m-latest > .m-fan { position: relative; flex: 1 1 auto; width: 100%; min-height: 96px; margin: 0; }
+.m-latest > .m-fan i { left: 50%; bottom: 6px; width: 84px; height: 100px; margin-left: -42px; }
+.m-latest > .m-open { margin-top: 8px; transform: none; }

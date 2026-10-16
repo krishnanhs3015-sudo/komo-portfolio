@@ -88,6 +88,7 @@ function Bubble({ s, reduce, onTick, onDone }) {
 export default function Home({ onVeil, onNavigate }) {
   const reduce = useReducedMotion()
   const [fit, setFit] = useState(1)
+  const [portrait, setPortrait] = useState(false) // tall, narrow screens (phones)
   const [active, setActive] = useState(null) // sticker whose bubble is open
   const [intro, setIntro] = useState(-1)      // -1 waiting, 0.. which intro line is showing, INTRO.length = finished
   const pointerType = useRef('mouse')
@@ -119,7 +120,14 @@ export default function Home({ onVeil, onNavigate }) {
 
   useEffect(() => {
     // fit the whole stage; on tall/narrow screens fill the width with the character instead (side margins are cropped)
-    const update = () => setFit(Math.max(Math.min(window.innerWidth / W, window.innerHeight / H), Math.min(window.innerWidth / 1020, window.innerHeight / H)))
+    const update = () => {
+      const vw = window.innerWidth
+      const vh = window.innerHeight
+      const p = vw / vh < 0.9
+      setPortrait(p)
+      // phones: big character standing on the bottom edge (ears may crop a little); otherwise fit the whole stage
+      setFit(p ? Math.min(vw / 820, (vh * 0.82) / H) : Math.max(Math.min(vw / W, vh / H), Math.min(vw / 1020, vh / H)))
+    }
     update()
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
@@ -262,7 +270,9 @@ export default function Home({ onVeil, onNavigate }) {
     startLeave(s)
   }
 
-  const stageStyle = useMemo(() => ({ width: W, height: H, transform: `translate(-50%, -50%) scale(${fit})` }), [fit])
+  const stageStyle = useMemo(() => (portrait
+    ? { width: W, height: H, top: 'auto', bottom: 0, transform: `translateX(-50%) scale(${fit})`, transformOrigin: 'center bottom' }
+    : { width: W, height: H, transform: `translate(-50%, -50%) scale(${fit})` }), [fit, portrait])
   const canvasBox = { left: CANVAS.x, top: CANVAS.y, width: CANVAS.size, height: CANVAS.size }
   const activeSticker = STICKERS.find((s) => s.id === active)
   // on narrow screens the sides of the stage are cropped: pull the intro bubble in so it is never cut off
@@ -279,10 +289,13 @@ export default function Home({ onVeil, onNavigate }) {
           {muted ? <path d="M17 9l5 6M22 9l-5 6" /> : <><path d="M16.5 8.5a5 5 0 010 7" /><path d="M19 6a8.5 8.5 0 010 12" /></>}
         </svg>
       </button>
+      {portrait && <h1 className="wordmark-top"><img src={asset('home/logo.svg')} alt="KOMO.IS" draggable={false} /></h1>}
       <div className="home-stage" style={stageStyle}>
-        <div className="home-head">
-          <h1 className="wordmark"><img src={asset('home/logo.svg')} alt="KOMO.IS" draggable={false} /></h1>
-        </div>
+        {!portrait && (
+          <div className="home-head">
+            <h1 className="wordmark"><img src={asset('home/logo.svg')} alt="KOMO.IS" draggable={false} /></h1>
+          </div>
+        )}
 
         <motion.div className="camera" style={{ x: panX, y: panY, scale: camScale, transformOrigin: `${MOUTH_CENTER.x}px ${MOUTH_CENTER.y}px` }}>
         <motion.div className="char" style={{ x: charX, y: charY, rotate: charR }}>
