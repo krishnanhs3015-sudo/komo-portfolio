@@ -1,0 +1,66 @@
+.home { position: relative; width: 100%; height: 100vh; overflow: hidden; background: #f4f6fb; user-select: none; }
+.home-bg { position: absolute; inset: 0; background: url('/home/grid.webp') center / cover no-repeat; }
+.home-stage { position: absolute; left: 50%; top: 50%; transform-origin: center center; }
+
+.home-head { position: absolute; left: 0; top: 0; width: 100%; height: 120px; z-index: 5; pointer-events: none; }
+.wordmark { position: absolute; left: 608px; top: 27px; width: 216px; margin: 0; line-height: 0; }
+.wordmark img { width: 100%; height: auto; display: block; }
+
+.char { position: absolute; inset: 0; }
+.bob { position: absolute; inset: 0; animation: bob 5.5s ease-in-out infinite; }
+.layer { position: absolute; pointer-events: none; }
+.fill { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.blinker { position: absolute; inset: 0; transform-origin: 50% 45.9%; animation: blink 5.2s infinite; }
+.pupil-mask { position: absolute; inset: 0; -webkit-mask: url('/home/whites.webp') center / 100% 100% no-repeat; mask: url('/home/whites.webp') center / 100% 100% no-repeat; }
+
+.sticker { position: absolute; display: block; cursor: pointer; outline: none; filter: drop-shadow(0 3px 5px rgba(20, 30, 60, .28)); -webkit-tap-highlight-color: transparent; }
+.sticker img { display: block; width: 100%; height: 100%; pointer-events: none; animation: wiggle 9s ease-in-out infinite; }
+.sticker:focus-visible { outline: 3px dashed var(--navy); outline-offset: 6px; border-radius: 12px; }
+
+.bubble { position: absolute; z-index: 9; pointer-events: none; filter: drop-shadow(0 8px 14px rgba(20, 30, 60, .25)); }
+.bubble img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.bubble-text { position: absolute; left: 50%; transform: translate(-50%, -50%); width: 90%; text-align: center; line-height: 1.15; color: var(--navy); white-space: pre; }
+
+.explore { position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%); margin: 0; font-size: 36px; color: #fff; z-index: 7; text-shadow: 0 2px 0 rgba(28, 39, 72, .3); animation: pulse 2.8s ease-in-out infinite; pointer-events: none; }
+
+@keyframes blink { 0%, 90%, 94%, 100% { transform: scaleY(1); } 92% { transform: scaleY(.08); } 96% { transform: scaleY(.08); } 98% { transform: scaleY(1); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes wiggle { 0%, 88%, 100% { transform: rotate(0); } 91% { transform: rotate(-6deg); } 94% { transform: rotate(5deg); } 97% { transform: rotate(-3deg); } }
+@keyframes pulse { 0%, 100% { opacity: .85; transform: translateX(-50%) translateY(0); } 50% { opacity: 1; transform: translateX(-50%) translateY(-4px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .bob, .blinker, .sticker img, .explore { animation: none; }
+}
+
+/* placeholder pages that are not built yet */
+.soon { min-height: 100vh; background: var(--blue); display: grid; place-content: center; text-align: center; gap: 18px; color: var(--cream); }
+.soon h1 { font-size: 56px; }
+.soon a { color: var(--navy); background: var(--lime); text-decoration: none; padding: 12px 28px; border-radius: 22px; font-size: 22px; justify-self: center; }
+
+/* page-corner notes: the original mono style, just larger (scales with the window) */
+.corner { position: absolute; top: clamp(18px, 2.8vw, 40px); z-index: 8; margin: 0; font-size: clamp(20px, 2vw, 32px); line-height: 1.9; letter-spacing: .2em; text-transform: uppercase; color: var(--red); pointer-events: none; }
+.corner.left { left: clamp(16px, 2.8vw, 48px); }
+.corner.right { right: clamp(16px, 2.8vw, 48px); text-align: right; }
+
+.typed { position: relative; display: inline-block; }
+.typed-ghost { visibility: hidden; white-space: pre; text-align: left; }
+.typed-live { position: absolute; left: 0; top: 0; white-space: pre; text-align: left; }
+.caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -0.12em; background: var(--navy); animation: caret .7s steps(1) infinite; }
+@keyframes caret { 50% { opacity: 0; } }
+
+/* talking mouth: two lips split along the crease, a dark mouth interior opens between them */
+.mouth { position: absolute; pointer-events: none; }
+.lip { position: absolute; inset: 0; width: 100%; height: 100%; }
+.lip-top { clip-path: inset(0 0 52% 0); }
+.lip-bottom { clip-path: inset(48% 0 0 0); }
+.mouth-inner { position: absolute; inset: 0; -webkit-mask: url('/home/mouth-mask.png') center / 100% 100% no-repeat; mask: url('/home/mouth-mask.png') center / 100% 100% no-repeat; display: grid; place-items: center; }
+.mouth-inner i { display: block; width: 80%; height: 56%; border-radius: 50%; background: #5b1d1d; transform-origin: 50% 50%; }
+
+.sound-toggle { position: absolute; left: clamp(16px, 2.8vw, 48px); bottom: clamp(16px, 2.8vw, 40px); z-index: 9; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--blue); background: rgba(255, 244, 226, .9); color: var(--blue); cursor: pointer; transition: transform .15s; }
+.sound-toggle:hover { transform: scale(1.08); }
+.sound-toggle:focus-visible { outline: 3px dashed var(--navy); outline-offset: 4px; }
+
+/* click transition: everything but the character fades while the camera dives into the mouth */
+.camera { position: absolute; inset: 0; }
+.home.leaving .corner, .home.leaving .sound-toggle, .home.leaving .wordmark, .home.leaving .explore { opacity: 0; transition: opacity .45s ease; }
+.veil { position: fixed; inset: 0; z-index: 100; background: #5b1d1d; opacity: 0; }

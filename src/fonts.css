@@ -1,0 +1,19 @@
+@import '@fontsource/itim';
+
+@font-face { font-family: 'Heavitas'; src: url('/fonts/Heavitas.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'NovaMono'; src: url('/fonts/novamono.ttf') format('truetype'); font-display: swap; }
+
+:root {
+  --orange: #e36547;
+  --lime: #aacf51;
+  --blue: #2e4c8c;
+  --navy: #1c2748;
+  --cream: #fff4e2;
+  --red: #d9422b;
+  --font-hand: 'Baby Doll', 'Itim', cursive;   /* swap in the real Baby Doll file when available */
+  --font-mono: 'NovaMono', monospace;
+  --font-display: 'Heavitas', 'Archivo Black', sans-serif;
+}
+.hand { font-family: var(--font-hand); font-weight: 400; margin: 0; }
+.mono { font-family: var(--font-mono); }
+.display { font-family: var(--font-display); font-weight: 400; margin: 0; }

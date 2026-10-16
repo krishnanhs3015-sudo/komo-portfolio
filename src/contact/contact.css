@@ -1,0 +1,83 @@
+@import '@fontsource/itim';
+
+@font-face { font-family: 'Heavitas'; src: url('/fonts/Heavitas.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'NovaMono'; src: url('/fonts/novamono.ttf') format('truetype'); font-display: swap; }
+
+:root {
+  --font-hand: 'Baby Doll', 'Itim', cursive;   /* swap to the real Baby Doll file when available */
+  --font-mono: 'NovaMono', monospace;        /* buttons only */
+  --orange: #e36547;
+  --lime: #aacf51;
+  --blue: #2e4c8c;
+  --navy: #1c2748;
+  --cream: #fff4e2;
+}
+
+/* "Baby Doll" is not available yet: Itim is the stand-in. Put Baby Doll first once the file is in /public/fonts. */
+.hand { font-family: 'Baby Doll', 'Itim', cursive; font-weight: 400; margin: 0; }
+.mono { font-family: 'NovaMono', monospace; }
+
+.contact-page { min-height: 100vh; background: var(--blue); display: grid; place-items: start center; padding: 24px 12px; box-sizing: border-box; }
+.contact-wrap { width: 100%; max-width: 1264px; position: relative; overflow: visible; }
+.stage { position: absolute; left: 0; top: 0; transform-origin: top left; }
+.stage-step { position: absolute; inset: 0; }
+
+/* ---- checklist ---- */
+.card { position: absolute; left: 202px; top: 40px; width: 860px; height: 589px; background: var(--orange); border-radius: 14px; z-index: 2; }
+.title { position: absolute; left: 30px; top: 100px; font-size: 35px; color: #fff; }
+.row { position: absolute; left: 20px; width: 330px; height: 44px; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+.box { position: absolute; left: 0; top: 9px; width: 26px; height: 26px; box-sizing: border-box; border: 3px solid var(--blue); border-radius: 3px; transition: background .2s; }
+.row.on .box { background: var(--blue); }
+.tick { position: absolute; left: -3px; top: -3px; width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.label { position: absolute; left: 57px; top: 2px; font-size: 35px; color: #fff; white-space: nowrap; transition: opacity .3s; }
+.strike { display: inline-block; }
+.strike::after { content: ''; position: absolute; left: 0; right: 0; top: 56%; height: 3px; border-radius: 2px; background: var(--cream); transform: scaleX(0); transform-origin: left; transition: transform .35s ease-out; }
+.row.on .strike { opacity: .7; }
+.row.on .strike::after { transform: scaleX(1); }
+.row:focus-visible { outline: 3px dashed var(--cream); outline-offset: 4px; }
+
+.face { position: absolute; left: 426px; top: 88px; width: 366px; height: 366px; }
+.face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+
+.pill-wrap { position: absolute; left: 77px; top: 500px; }
+.pill { position: relative; font-size: 22px; color: var(--navy); background: var(--lime); border: 0; border-radius: 22px; padding: 12px 28px; cursor: pointer; transition: background .2s; }
+.pill.hover { background: #bfe063; }
+
+.popout { position: absolute; left: 442px; top: 600px; width: 380px; height: 230px; background: var(--navy); border-radius: 14px; overflow: hidden; z-index: 1; }
+.popout img { display: block; width: 100%; height: 190px; object-fit: cover; }
+.gif-placeholder { height: 190px; background: var(--lime); color: var(--navy); font-family: 'NovaMono', monospace; font-size: 18px; display: grid; place-content: center; text-align: center; }
+.gif-placeholder small { font-size: 12px; opacity: .7; }
+.popout-caption { font-family: 'NovaMono', monospace; font-size: 16px; color: var(--cream); text-align: center; padding-top: 10px; }
+
+/* ---- form and sent ---- */
+.sticker { position: absolute; left: 0; top: 80px; width: 589px; height: 650px; border-radius: 10px; }
+.form-card { position: absolute; left: 608px; top: 80px; width: 656px; height: 500px; box-sizing: border-box; background: var(--orange); border-radius: 10px; padding: 30px 44px; display: flex; flex-direction: column; gap: 14px; }
+.form-card h2 { font-size: 40px; color: #fff; }
+.chips { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 8px; margin: 2px 0 6px; }
+.chips .small { margin-right: 2px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; background: var(--blue); color: var(--cream); font-family: 'Baby Doll', 'Itim', cursive; font-size: 16px; border-radius: 18px; padding: 5px 11px 5px 9px; }
+.small { font-size: 20px; color: var(--cream); }
+.line { display: flex; align-items: center; gap: 16px; }
+.word { color: var(--navy); font-size: 26px; white-space: nowrap; }
+.form-card input { height: 52px; background: var(--cream); color: var(--navy); border: 0; border-radius: 14px; padding: 0 18px; font-family: 'Baby Doll', 'Itim', cursive; font-size: 22px; outline: none; box-sizing: border-box; }
+.form-card input:focus { box-shadow: 0 0 0 3px var(--navy); }
+.form-card input::placeholder { color: #a8604c; font-family: 'Baby Doll', 'Itim', cursive; font-size: 20px; opacity: 1; }
+.send { display: flex; align-items: center; gap: 10px; font-size: 22px; color: var(--navy); background: var(--lime); border: 0; border-radius: 22px; padding: 12px 28px; cursor: pointer; }
+.send:disabled { opacity: .6; cursor: default; }
+.ghost { font-size: 20px; color: var(--cream); background: none; border: 2px solid var(--cream); border-radius: 22px; padding: 10px 22px; cursor: pointer; }
+.error { font-family: 'Baby Doll', 'Itim', cursive; font-size: 22px; color: #fff; }
+.mini { position: absolute; right: 16px; bottom: 14px; object-fit: contain; }
+.info { position: absolute; left: 608px; top: 600px; width: 656px; height: 130px; box-sizing: border-box; background: var(--lime); border-radius: 10px; padding: 0 44px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.info .small { color: var(--navy); font-size: 20px; }
+.info .hint { font-family: 'Baby Doll', 'Itim', cursive; font-size: 20px; color: var(--navy); }
+.email { font-size: 34px; line-height: 1.1; color: var(--navy); }
+
+@media (prefers-reduced-motion: reduce) {
+  .strike::after, .box, .pill { transition: none; }
+}
+
+/* cursor-following hover text */
+.cursor-tag { position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; max-width: 320px; background: var(--cream); color: var(--navy); font-size: 22px; line-height: 1.25; padding: 12px 20px; border-radius: 20px 20px 20px 4px; box-shadow: 0 8px 24px rgba(0,0,0,.25); transform-origin: left bottom; }
+
+.home-link { position: fixed; left: 20px; top: 16px; z-index: 40; color: var(--cream); font-size: 24px; text-decoration: none; padding: 6px 14px; border-radius: 18px; }
+.home-link:hover { background: rgba(255,244,226,.15); }
