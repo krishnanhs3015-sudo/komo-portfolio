@@ -1,0 +1,15 @@
+.brand { position: relative; width: 100%; overflow: hidden; background: var(--blue); }
+.b-stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.b-top { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.b-fixed { position: absolute; display: block; pointer-events: none; user-select: none; }
+.b-piece { position: absolute; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.b-piece:active { cursor: grabbing; }
+.b-piece img { pointer-events: none; }
+.b-strap { position: absolute; left: 0; top: 0; z-index: 4; transform-origin: 50% 0; pointer-events: none; }
+.b-strap img { display: block; width: 100%; }
+.b-strap-top { height: 340px; }
+.b-card { position: absolute; left: 0; top: 0; z-index: 6; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; will-change: transform; }
+.b-card:active { cursor: grabbing; }
+.b-hint { position: absolute; left: 640px; top: 40px; margin: 0; z-index: 8; color: var(--cream); font-size: 34px; transform: rotate(-7deg); pointer-events: none; transition: opacity .4s ease; }
+.brand-back { position: fixed; left: clamp(14px, 2vw, 32px); top: clamp(12px, 2vw, 28px); z-index: 50; color: var(--cream); font-size: clamp(22px, 2vw, 30px); text-decoration: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
