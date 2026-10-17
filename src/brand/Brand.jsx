@@ -161,6 +161,7 @@ export default function Brand() {
   const mobile = useIsMobile()
   const [k, setK] = useState(1)
   const [grabbed, setGrabbed] = useState(false)
+  const [fall, setFall] = useState(false)
   const stage = useRef(null)
   const zTop = useRef(20)
   const front = () => ++zTop.current
@@ -189,6 +190,23 @@ export default function Brand() {
     const p = toStage(e)
     return { x: (p.x - topOffset.x) / m, y: (p.y - topOffset.y) / m }
   }
+
+  // on open, the desk pieces drop from the top of the page and the page scrolls down with them until they settle
+  useEffect(() => {
+    if (reduced()) { setFall(true); return }
+    let ctl
+    const stop = () => ctl?.stop()
+    const t = setTimeout(() => {
+      setFall(true)
+      const s = window.innerWidth / W
+      const dy = mobile ? 940 + 563 / 2 : 1436 + 626 / 2
+      const target = Math.max(0, dy * s - window.innerHeight / 2)
+      ctl = animate(window.scrollY, target, { duration: 1.15, ease: [0.5, 0, 0.9, 0.6], onUpdate: (v) => window.scrollTo(0, v) })
+    }, 700)
+    const evs = ['wheel', 'touchstart', 'keydown', 'pointerdown']
+    evs.forEach((e) => window.addEventListener(e, stop, { passive: true }))
+    return () => { clearTimeout(t); stop(); evs.forEach((e) => window.removeEventListener(e, stop)) }
+  }, [mobile, W])
 
   const lower = mobile
     ? [
@@ -219,7 +237,7 @@ export default function Brand() {
         </div>
         {lower.map((p) => <Piece key={p.src} {...p} toLocal={toStage} front={front} />)}
         <img className="b-fixed" src={asset('brand/squig.webp')} alt="" draggable={false} style={{ ...squig, zIndex: 1 }} />
-        <DeskScene size={desk.size} style={{ position: 'absolute', left: desk.left, top: desk.top, zIndex: 2 }} />
+        <DeskScene size={desk.size} start={fall} free drop={desk.top + 300} style={{ position: 'absolute', left: desk.left, top: desk.top, zIndex: 2 }} />
       </div>
     </main>
   )
