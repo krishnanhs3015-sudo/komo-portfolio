@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, animate } from 'framer-motion'
 import useIsMobile from '../useIsMobile'
 import { asset } from '../asset'
+import { DeskScene } from '../test/DeskDrop'
 import './brand.css'
 
 // Belief page: everything is laid out in Figma units (1440 wide) and the whole stage is scaled to fit.
@@ -165,7 +166,7 @@ export default function Brand() {
   const front = () => ++zTop.current
 
   const W = mobile ? 820 : 1440
-  const H = mobile ? 1480 : 2040
+  const H = mobile ? 1560 : 2120
   const m = mobile ? 0.58 : 1 // scale of the banner + card group inside the stage
 
   useEffect(() => {
@@ -201,7 +202,7 @@ export default function Brand() {
         { src: 'brand/pol3.webp', alt: 'Polaroid: Komo covered in coffee', left: 978, top: 941, width: 252, delay: 0.16 },
       ]
   const squig = mobile ? { left: 57, top: 890, width: 705 } : { left: 132, top: 1284, width: 1175 }
-  const desk = mobile ? { left: 128, top: 940, width: 563 } : { left: 407, top: 1436, width: 626 }
+  const desk = mobile ? { left: 128, top: 940, size: 563 } : { left: 407, top: 1436, size: 626 }
 
   return (
     <main className="brand" style={{ height: H * k }}>
@@ -218,7 +219,7 @@ export default function Brand() {
         </div>
         {lower.map((p) => <Piece key={p.src} {...p} toLocal={toStage} front={front} />)}
         <img className="b-fixed" src={asset('brand/squig.webp')} alt="" draggable={false} style={{ ...squig, zIndex: 1 }} />
-        <img className="b-fixed" src={asset('brand/desk.webp')} alt="Komo working at a desk on fire. The star." draggable={false} style={{ ...desk, zIndex: 2 }} />
+        <DeskScene size={desk.size} style={{ position: 'absolute', left: desk.left, top: desk.top, zIndex: 2 }} />
       </div>
     </main>
   )

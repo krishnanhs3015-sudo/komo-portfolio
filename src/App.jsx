@@ -4,6 +4,7 @@ import Home from './home/Home'
 import ContactFlow from './contact/ContactFlow'
 import Projects from './projects/Projects'
 import Brand from './brand/Brand'
+import DeskDrop from './test/DeskDrop'
 import ProjectDetail from './projects/ProjectDetail'
 import './fonts.css'
 import './index.css'
@@ -40,6 +41,7 @@ export default function App() {
     : route === 'home' ? <Home onVeil={onVeil} onNavigate={onNavigate} />
     : route === 'projects' ? <Projects />
     : route === 'brand' ? <Brand />
+    : route === 'test' ? <DeskDrop />
     : route.startsWith('project/') ? <ProjectDetail id={route.slice(8)} />
     : <Soon name={route} />
   return (

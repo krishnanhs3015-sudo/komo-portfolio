@@ -1,0 +1,14 @@
+.dd { min-height: 100vh; min-height: 100dvh; background: var(--cream); display: grid; place-items: center; overflow: hidden; position: relative; }
+/* the visible window crops the 2000x2000 canvas to where the drawing actually is */
+.dd-window { overflow: hidden; position: relative; }
+.dd-stage { position: absolute; left: 0; top: 0; width: 2000px; height: 2000px; transform-origin: 0 0; }
+.dd-layer { position: absolute; inset: 0; will-change: transform; }
+.dd-img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; user-select: none; pointer-events: none; }
+.dd-flame { transform-origin: 50% 1470px; animation: ddflame 1.6s ease-in-out infinite; }
+@keyframes ddflame { 0%, 100% { transform: scaleY(1) skewX(0); } 30% { transform: scaleY(1.025) skewX(-.8deg); } 65% { transform: scaleY(.985) skewX(.7deg); } }
+/* eyelids: cream ellipses that sweep down over the monitor's eyes */
+.dd-lid { position: absolute; background: #f3ece7; border-radius: 50%; border-bottom: 7px solid #2a5090; transform: scaleY(0); transform-origin: 50% 0; pointer-events: none; }
+.dd-blink { animation: ddblink 3.6s ease-in-out infinite; }
+.dd-blink-b { animation-delay: .06s; }
+@keyframes ddblink { 0%, 90%, 100% { transform: scaleY(0); } 94% { transform: scaleY(1); } 97% { transform: scaleY(0); } }
+.dd-hint { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; margin: 0; color: var(--navy); font-size: 22px; opacity: .55; pointer-events: none; }
