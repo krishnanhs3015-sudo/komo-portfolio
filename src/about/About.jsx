@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { motion, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
 import { DeskLayers, calm } from '../test/DeskDrop'
 import { asset } from '../asset'
+import Footer from './Footer'
 import './about.css'
 
 // About: three scenes driven by scroll, pinned to the screen.
@@ -14,16 +15,11 @@ const CANVAS = { x: 349, y: 261, scale: 743 / 2000 } // where the 2000px desk ca
 const ZOOM_AT = { x: 349 + 800 * CANVAS.scale, y: 261 + 1500 * CANVAS.scale } // the dark opening under the desk
 const SECTION_VH = 600
 
-const NAV = [
-  ['HOME', [['ABOUT', '#/about'], ['WORKS', '#/projects'], ['JOURNEY', '#/journey']], '#/'],
-  ['PROJECTS', [['BEHANCE', '#'], ['UPWORK', '#']], '#/projects'],
-  ['SOCIAL MEDIA', [['INSTAGRAM', '#'], ['LINKEDIN', '#']], null],
-]
-
 export default function About() {
   const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight })
   const [idle, setIdle] = useState(false)
   const [go, setGo] = useState(false)
+  const [footerOn, setFooterOn] = useState(false)
   const section = useRef(null)
 
   useEffect(() => {
@@ -44,6 +40,8 @@ export default function About() {
 
   const { scrollYProgress } = useScroll({ target: section, offset: ['start start', 'end end'] })
   const p = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.4 })
+
+  useMotionValueEvent(p, 'change', (v) => { if (v > 0.8) setFooterOn(true) })
 
   // stage fit: whole frame on wide screens, big and bottom-anchored on phones
   const portrait = vp.w / vp.h < 0.9
@@ -81,25 +79,7 @@ export default function About() {
           <section className="ab-slide ab-table" aria-label="About, at the table">
             <motion.img style={{ scale: tableScale }} src={asset('brand/about/table.webp')} alt="Komo's table seen from above, with stickers, scissors and paper" draggable={false} />
           </section>
-          <section className="ab-slide ab-footer" aria-label="Contact">
-            <div className="af-top">
-              <div className="af-contact">
-                <p className="af-small">Have an awesome project?</p>
-                <p className="af-big">CONTACT ME</p>
-                <p className="af-small af-brief">Or send your brief here</p>
-                <a className="af-big af-mail" href="mailto:kmorebiisavere@gmail.com">kmorebiisavere@gmail.com</a>
-              </div>
-              <nav className="af-nav" aria-label="Site">
-                {NAV.map(([head, links, href]) => (
-                  <div key={head}>
-                    {href ? <a className="af-head" href={href}>{head}</a> : <p className="af-head">{head}</p>}
-                    {links.map(([name, to]) => <a key={name} href={to}>{name}</a>)}
-                  </div>
-                ))}
-              </nav>
-            </div>
-            <img className="af-art" src={asset('brand/about/footer-art.webp')} alt="" draggable={false} />
-          </section>
+          <Footer on={footerOn} />
         </motion.div>
       </div>
     </main>
