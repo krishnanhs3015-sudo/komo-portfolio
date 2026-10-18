@@ -60,12 +60,16 @@ function Char({ c, i, on, px }) {
   const cx = (x + w / 2) / 1440
   const tx = useTransform(px, (v) => clamp((v - cx) * 2.2, -1, 1) * 9)
   const rot = useTransform(px, (v) => clamp((v - cx) * 2.2, -1, 1) * 4)
+  const rest = 3800 + ((i * 1900) % 3300) // each character blinks on its own rhythm
   return (
-    <motion.img className="af-char" src={asset(`brand/about/ch-${name}.webp`)} alt={alt} draggable={false}
-      style={{ left: `${(x / 1440) * 100}%`, top: `${((y - ART_TOP) / ART_H) * 100}%`, width: `${(w / 1440) * 100}%`, x: tx, rotate: rot }}
+    <motion.div className={'af-char' + (on ? ' af-blinking' : '')}
+      style={{ left: `${(x / 1440) * 100}%`, top: `${((y - ART_TOP) / ART_H) * 100}%`, width: `${(w / 1440) * 100}%`, x: tx, rotate: rot, '--bd': `${rest}ms`, '--bl': `${1500 + i * 700}ms` }}
       initial={calm() ? false : { y: '115%' }} animate={{ y: on ? '0%' : '115%' }}
       transition={{ type: 'spring', stiffness: 200, damping: 11, delay: on ? 0.1 + i * 0.12 : 0 }}
-      whileHover={{ y: '-7%', transition: { type: 'spring', stiffness: 420, damping: 12 } }} />
+      whileHover={{ y: '-7%', transition: { type: 'spring', stiffness: 420, damping: 12 } }}>
+      <img src={asset(`brand/about/ch-${name}.webp`)} alt={alt} draggable={false} />
+      <img className="af-blink" src={asset(`brand/about/ch-${name}-blink.webp`)} alt="" draggable={false} />
+    </motion.div>
   )
 }
 
