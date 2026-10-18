@@ -3,9 +3,9 @@ import { motion, useInView } from 'framer-motion'
 import { asset } from '../asset'
 import './desk-drop.css'
 
-// The five desk layers fall together and settle into one picture, then idle (flames flicker, monitor blinks).
+// The desk layers fall together and settle into one picture, then idle (flames flicker, monitor blinks).
 // All layers share one 2000x2000 canvas, so each is stacked at the same size and offset.
-const calm = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+export const calm = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 // bottom to top. rot = tilt while falling, hop = height of the first bounce (canvas px), delay in seconds
 const LAYERS = [
@@ -18,6 +18,54 @@ const LAYERS = [
 const FALL = 1.9 // seconds from release to fully settled; first touch-down is at 55% of that
 const TIMES = [0, 0.55, 0.72, 0.85, 0.93, 1]
 const EASE = ['easeIn', 'easeOut', 'easeIn', 'easeOut', 'easeIn'] // gravity down, slowing up, repeat
+const NECK = 1515 // canvas y where the flames end and the body starts
+
+// The 2000x2000 canvas. plain = the plain grey monitor + cream sticker outline (About) instead of the eyes monitor (Belief).
+export function DeskLayers({ yStart, idle, onIdle, plain = false }) {
+  const still = calm()
+  const live = idle && !still
+  return (
+    <>
+      {plain && <img className="dd-img dd-outline" src={asset('brand/about/outline.webp')} alt="" draggable={false} style={{ opacity: idle || still ? 1 : 0 }} />}
+      {LAYERS.map((l) => {
+        const src = asset(l.id === 'monitor' && plain ? 'brand/about/monitor-plain.webp' : `brand/layers/${l.id}.webp`)
+        const fall = still ? {} : {
+          initial: { y: yStart, rotate: l.rot },
+          animate: {
+            y: [yStart, 0, -l.hop, 0, -l.hop * 0.3, 0],
+            rotate: [l.rot, 0, -l.rot * 0.15, 0, 0, 0],
+            scaleY: [1, 0.9, 1.02, 0.97, 1, 1], // squash on each landing
+          },
+          transition: { duration: FALL, delay: l.delay, times: TIMES, ease: EASE },
+          onAnimationComplete: l.id === 'book-labels' ? onIdle : undefined, // last to settle
+        }
+        if (l.id === 'fire-character') {
+          // flames flicker, body stays put: split the layer at the neck (overlapping a little to hide the seam)
+          return (
+            <motion.div key={l.id} className="dd-layer" {...fall}>
+              <img className="dd-img" src={src} alt="" draggable={false} style={{ clipPath: `inset(${NECK - 10}px 0 0 0)` }} />
+              <img className={'dd-img' + (live ? ' dd-flame' : '')} src={src} alt="Komo with a head on fire, working at a desk" draggable={false} style={{ clipPath: `inset(0 0 ${2000 - NECK}px 0)` }} />
+            </motion.div>
+          )
+        }
+        if (l.id === 'monitor' && !plain) {
+          return (
+            <motion.div key={l.id} className="dd-layer" {...fall}>
+              <img className="dd-img" src={src} alt="" draggable={false} />
+              <i className={'dd-lid' + (live ? ' dd-blink' : '')} style={{ left: 903, top: 611, width: 94, height: 124 }} />
+              <i className={'dd-lid' + (live ? ' dd-blink dd-blink-b' : '')} style={{ left: 1004, top: 616, width: 94, height: 124 }} />
+            </motion.div>
+          )
+        }
+        return (
+          <motion.div key={l.id} className="dd-layer" {...fall}>
+            <img className="dd-img" src={src} alt="" draggable={false} />
+          </motion.div>
+        )
+      })}
+    </>
+  )
+}
 
 // size = side of the square window in px. Falls when `start` is true (or, if left out, when scrolled into view).
 // drop = how far above its spot the pieces start, in the same units as size. free = let pieces fall over the page.
@@ -27,52 +75,13 @@ export function DeskScene({ size, style, start, drop = 700, free = false }) {
   const box = useRef(null)
   const seen = useInView(box, { once: true, amount: 0.35 })
   const go = start === undefined ? seen : start
-  const still = calm()
   const replay = () => { setIdle(false); setRun((r) => r + 1) }
-  const yStart = -drop * (1410 / size) // canvas px
 
   return (
     <div ref={box} className="dd-window" style={{ width: size, height: size, cursor: 'pointer', overflow: free ? 'visible' : 'hidden', ...style, zIndex: idle || !free ? style?.zIndex : 20 }} onClick={replay}>
-      {(go || still) && (
+      {(go || calm()) && (
         <div className="dd-stage" key={run} style={{ transform: `scale(${size / 1410}) translate(-230px, -540px)` }}>
-          {LAYERS.map((l) => {
-            const src = asset(`brand/layers/${l.id}.webp`)
-            const fall = still ? {} : {
-              initial: { y: yStart, rotate: l.rot },
-              animate: {
-                y: [yStart, 0, -l.hop, 0, -l.hop * 0.3, 0],
-                rotate: [l.rot, 0, -l.rot * 0.15, 0, 0, 0],
-                scaleY: [1, 0.9, 1.02, 0.97, 1, 1], // squash on each landing
-              },
-              transition: { duration: FALL, delay: l.delay, times: TIMES, ease: EASE },
-              onAnimationComplete: l.id === 'book-labels' ? () => setIdle(true) : undefined, // last to settle
-            }
-            const live = idle && !still
-            const cls = 'dd-layer'
-            if (l.id === 'fire-character') {
-              // flames flicker, body stays put: split the layer at the neck (overlapping a little to hide the seam)
-              return (
-                <motion.div key={l.id} className={cls} {...fall}>
-                  <img className="dd-img" src={src} alt="" draggable={false} style={{ clipPath: 'inset(1458px 0 0 0)' }} />
-                  <img className={'dd-img' + (live ? ' dd-flame' : '')} src={src} alt="Komo with a head on fire, working at a desk" draggable={false} style={{ clipPath: 'inset(0 0 530px 0)' }} />
-                </motion.div>
-              )
-            }
-            if (l.id === 'monitor') {
-              return (
-                <motion.div key={l.id} className={cls} {...fall}>
-                  <img className="dd-img" src={src} alt="" draggable={false} />
-                  <i className={'dd-lid' + (live ? ' dd-blink' : '')} style={{ left: 872, top: 586, width: 92, height: 124 }} />
-                  <i className={'dd-lid' + (live ? ' dd-blink dd-blink-b' : '')} style={{ left: 970, top: 590, width: 92, height: 124 }} />
-                </motion.div>
-              )
-            }
-            return (
-              <motion.div key={l.id} className={cls} {...fall}>
-                <img className="dd-img" src={src} alt="" draggable={false} />
-              </motion.div>
-            )
-          })}
+          <DeskLayers yStart={-drop * (1410 / size)} idle={idle} onIdle={() => setIdle(true)} />
         </div>
       )}
     </div>
