@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useMotionValue, useSpring } from 'framer-motion'
 import { asset } from '../asset'
+import useIsMobile from '../useIsMobile'
 import './contact.css'
 
 // The whole contact experience from the Figma file:
 //   checklist (Contact 1-4)  ->  form (Contact 5)  ->  message sent (Contact 6)
 const STAGE_W = 1264
 const STAGE_H = 880
+const NARROW_W = 420 // phones: a single column, so the text stays big enough to read
 
 const OPTIONS = ['Collaboration', 'Project enquire', 'Opportunity']
 const FACES = [
@@ -29,17 +31,17 @@ function copyFor(sel) {
   return { label: 'LET’S CONNECT', tag: `We have much to discuss: ${names.join(' + ')}` }
 }
 
-function useFit(ref) {
+function useFit(ref, stageW) {
   const [scale, setScale] = useState(1)
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const update = () => setScale(Math.min(1, el.clientWidth / STAGE_W))
+    const update = () => setScale(Math.min(1, el.clientWidth / stageW))
     update()
     const ro = new ResizeObserver(update)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [ref])
+  }, [ref, stageW])
   return scale
 }
 
@@ -58,7 +60,9 @@ const Chip = ({ text }) => (
 
 export default function ContactFlow() {
   const wrap = useRef(null)
-  const scale = useFit(wrap)
+  const narrow = useIsMobile()
+  const stageW = narrow ? NARROW_W : STAGE_W
+  const scale = useFit(wrap, stageW)
 
   const [step, setStep] = useState('checklist') // checklist | form | sent
   const [sel, setSel] = useState([false, false, false])
@@ -118,7 +122,7 @@ export default function ContactFlow() {
       <motion.div className="card" animate={{ rotate: all ? -3 : 0, y: all ? -24 : 0 }} transition={{ type: 'spring', stiffness: 140, damping: 14 }}>
         <h2 className="hand title">What I’m looking for</h2>
         {OPTIONS.map((o, i) => (
-          <button key={o} role="checkbox" aria-checked={sel[i]} className={'row' + (sel[i] ? ' on' : '')} style={{ top: [207, 282, 348][i] }} onClick={() => toggle(i)}>
+          <button key={o} role="checkbox" aria-checked={sel[i]} className={'row' + (sel[i] ? ' on' : '')} style={{ top: (narrow ? [100, 172, 244] : [207, 282, 348])[i] }} onClick={() => toggle(i)}>
             <span className="box">{sel[i] && <Tick />}</span>
             <span className="hand label strike">{o}</span>
           </button>
@@ -178,14 +182,15 @@ export default function ContactFlow() {
       </form>
       <div className="info">
         <span className="hand small">Prefer to write directly?</span>
-        <span className="hand email">your@email.com</span>
+        <a className="hand email" href="mailto:kmorebiisavere@gmail.com">kmorebiisavere@gmail.com</a>
         <span className="hint">Based in Singapore · open for projects</span>
       </div>
     </motion.div>
   )
 
+  const stageH = narrow ? (step === 'checklist' ? 760 : 920) : STAGE_H
   return (
-    <div className="contact-page">
+    <div className={'contact-page' + (narrow ? ' narrow' : '')}>
       <a className="home-link hand" href="#/">← Home</a>
       <AnimatePresence>
         {hover && step === 'checklist' && count > 0 && (
@@ -195,8 +200,8 @@ export default function ContactFlow() {
           </motion.div>
         )}
       </AnimatePresence>
-      <div ref={wrap} className="contact-wrap" style={{ height: STAGE_H * scale }}>
-        <div className="stage" style={{ width: STAGE_W, height: STAGE_H, transform: `scale(${scale})` }}>
+      <div ref={wrap} className="contact-wrap" style={{ height: stageH * scale }}>
+        <div className="stage" style={{ width: stageW, height: stageH, transform: `scale(${scale})` }}>
           <AnimatePresence mode="wait" initial={false}>{step === 'checklist' ? checklist : shell(step)}</AnimatePresence>
         </div>
       </div>

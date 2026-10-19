@@ -81,3 +81,27 @@
 
 .home-link { position: fixed; left: 20px; top: 16px; z-index: 40; color: var(--cream); font-size: 24px; text-decoration: none; padding: 6px 14px; border-radius: 18px; }
 .home-link:hover { background: rgba(255,244,226,.15); }
+
+.info .email { color: var(--navy); text-decoration: none; font-size: 30px; }
+/* phones: one column instead of the scaled-down desktop layout */
+.contact-page.narrow { padding: 68px 8px 28px; }
+.narrow .card { left: 0; top: 0; width: 420px; height: 720px; }
+.narrow .title { left: 24px; top: 24px; font-size: 38px; }
+.narrow .row { left: 24px; width: 372px; height: 56px; }
+.narrow .box { top: 14px; }
+.narrow .label { top: 6px; font-size: 34px; }
+.narrow .face { left: 55px; top: 300px; width: 310px; height: 310px; }
+.narrow .pill-wrap { left: 24px; top: 640px; }
+.narrow .pill { font-size: 17px; padding: 12px 20px; }
+.narrow .popout { left: 20px; top: 700px; width: 380px; }
+.narrow .sticker { display: none; }
+.narrow .form-card { left: 0; top: 0; width: 420px; height: auto; min-height: 640px; padding: 26px 22px 110px; }
+.narrow .form-card h2 { font-size: 34px; }
+.narrow .line { flex-wrap: wrap; gap: 8px 10px; }
+.narrow .form-card input { width: 100% !important; }
+.narrow .word { white-space: normal; font-size: 24px; }
+.narrow .info { left: 0; top: 724px; width: 420px; height: auto; padding: 18px 22px; }
+.narrow .info .email { font-size: 24px; overflow-wrap: anywhere; }
+.narrow .info .hint { font-size: 18px; }
+.narrow .cursor-tag { display: none; }
+.narrow .home-link, .home-link { min-height: 44px; display: inline-flex; align-items: center; }

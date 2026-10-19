@@ -13,6 +13,29 @@ import './home/home.css'
 
 const read = () => window.location.hash.replace(/^#\/?/, '') || 'home'
 
+// phones held upright: a small one-time tip on the pages drawn for a wide screen
+function RotateHint({ route }) {
+  const [open, setOpen] = useState(false)
+  useEffect(() => {
+    const wide = ['home', 'brand', 'about'].includes(route)
+    const upright = window.innerWidth < 600 && window.innerHeight > window.innerWidth
+    let seen = false
+    try { seen = sessionStorage.getItem('komo-rotate') === '1' } catch { /* private mode */ }
+    if (!wide || !upright || seen) { setOpen(false); return }
+    const show = setTimeout(() => setOpen(true), 1200)
+    const hide = setTimeout(() => setOpen(false), 7500)
+    return () => { clearTimeout(show); clearTimeout(hide) }
+  }, [route])
+  const close = () => { setOpen(false); try { sessionStorage.setItem('komo-rotate', '1') } catch { /* ignore */ } }
+  if (!open) return null
+  return (
+    <button className="rotate-hint hand" onClick={close} aria-label="Dismiss tip">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3M18 3v4h-4M6 21v-4h4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      Turn your phone sideways for the full picture
+    </button>
+  )
+}
+
 function Soon({ name }) {
   return (
     <div className="soon">
@@ -49,6 +72,7 @@ export default function App() {
   return (
     <>
       {page}
+      <RotateHint route={route} />
       <motion.div className="veil" initial={false} animate={{ opacity: veil }} transition={{ duration: veil ? 0.55 : 0.6, ease: 'easeInOut' }} style={{ pointerEvents: veil ? 'auto' : 'none' }} />
     </>
   )

@@ -78,6 +78,17 @@ export default function Footer({ on }) {
   const [hm, setHm] = useState(false)
   const raw = useMotionValue(0.5)
   const px = useSpring(raw, { stiffness: 90, damping: 18 })
+  // no hover on touch screens: let the two messages show up on their own, one after the other
+  useEffect(() => {
+    if (!on || !window.matchMedia('(hover: none)').matches || calm()) return
+    let k = 0
+    const iv = setInterval(() => {
+      k = (k + 1) % 4
+      setHc(k === 1)
+      setHm(k === 3)
+    }, 2600)
+    return () => clearInterval(iv)
+  }, [on])
   useEffect(() => {
     const move = (e) => raw.set(e.clientX / window.innerWidth)
     window.addEventListener('pointermove', move)

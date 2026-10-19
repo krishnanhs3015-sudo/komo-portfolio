@@ -53,7 +53,7 @@
 /* tablets: nav drops under the contact block */
 @media (max-width: 1100px) { .af-top { flex-direction: column; } .af-nav { width: 100%; justify-content: space-between; } }
 /* phones: contact on top, links in two columns, the big art cropped to its middle */
-@media (max-width: 820px) {
+@media (max-width: 900px) {
   .af-top { padding-top: 64px; gap: 28px; }
   .af-big { font-size: clamp(30px, 9vw, 48px); }
   .af-mail { font-size: clamp(22px, 6.6vw, 40px); }
@@ -65,3 +65,7 @@
   .af-art { width: 170%; margin-left: -35%; }
 }
 @media (max-width: 1100px) { .af-contact { flex: none; } }
+@media (pointer: coarse) {
+  .af-nav a, .af-nav .af-head { min-height: 44px; display: flex; align-items: center; }
+  .about-back, .brand-back { min-height: 44px; display: inline-flex; align-items: center; padding-right: 12px; }
+}
