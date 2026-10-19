@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { animate, motion, useMotionValue, useMotionValueEvent, useScroll, useSpring, useTransform } from 'framer-motion'
 import { DeskLayers, calm } from '../test/DeskDrop'
 import { asset } from '../asset'
-import Bulb from './Bulb'
+import Bulb, { Pool } from './Bulb'
+import { click } from './click'
 import Footer from './Footer'
 import './about.css'
 
@@ -24,6 +25,7 @@ const CAM = {
   x: [0, 0, -6, 7, -4, 0, 0, 2, 0],
   rotate: [0, 0, -0.4, 0.3, -0.15, 0, 0, 0, 0],
 }
+const LAND = 0.55 * 1.9 // seconds from the start of the fall to the desk's first touch-down
 const CAM_T = { duration: 1.9, times: [0, 0.55, 0.58, 0.62, 0.66, 0.71, 0.85, 0.88, 1], ease: ['easeIn', 'easeOut', 'easeInOut', 'easeInOut', 'easeOut', 'linear', 'easeOut', 'easeIn'] }
 
 // the bulb catching: on, off, half, off, on
@@ -34,6 +36,8 @@ const DIPS = [
   { to: [1, 0.15, 0.9, 0.2, 1], duration: 0.4 },
   { to: [1, 0.6, 1], duration: 0.12 },
 ]
+// the landing knocks the bulb into a swing that dies down (degrees)
+const SWING = { to: [0, 2.6, -2, 1.4, -0.9, 0.5, -0.2, 0], duration: 3.2, times: [0, 0.1, 0.26, 0.42, 0.58, 0.74, 0.88, 1] }
 
 export default function About() {
   const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight })
@@ -58,12 +62,14 @@ export default function About() {
   }, [])
   useEffect(() => { if (idle) document.documentElement.style.overflow = '' }, [idle])
 
-  // dark until the desk has landed, then the bulb flickers on and keeps dipping now and then
+  // dark until the desk first hits the floor; the jolt swings the bulb and knocks it on,
+  // then it keeps dipping now and then. Each time it catches, it clicks.
   const still = calm()
   const light = useMotionValue(still ? 1 : 0)
+  const swing = useMotionValue(0)
   useEffect(() => {
-    if (!idle || still) return
-    let ctl, t
+    if (!go || still) return
+    let ctl, sw, t
     const dip = () => {
       t = setTimeout(() => {
         const d = DIPS[Math.floor(Math.random() * DIPS.length)]
@@ -71,10 +77,20 @@ export default function About() {
       }, 2500 + Math.random() * 4500)
     }
     t = setTimeout(() => {
-      ctl = animate(light, FLICK_ON.to, { duration: FLICK_ON.duration, times: FLICK_ON.times, ease: 'linear', onComplete: dip })
-    }, 200)
-    return () => { clearTimeout(t); ctl?.stop() }
-  }, [idle, still, light])
+      sw = animate(swing, SWING.to, { duration: SWING.duration, times: SWING.times, ease: 'easeInOut' })
+      t = setTimeout(() => {
+        ctl = animate(light, FLICK_ON.to, { duration: FLICK_ON.duration, times: FLICK_ON.times, ease: 'linear', onComplete: dip })
+      }, 150)
+    }, LAND * 1000)
+    return () => { clearTimeout(t); ctl?.stop(); sw?.stop() }
+  }, [go, still, light, swing])
+  useEffect(() => {
+    let prev = light.get()
+    return light.on('change', (v) => {
+      if (prev < 0.5 && v >= 0.5) click(v)
+      prev = v
+    })
+  }, [light])
 
   const { scrollYProgress } = useScroll({ target: section, offset: ['start start', 'end end'] })
   const p = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.4 })
@@ -103,16 +119,17 @@ export default function About() {
       <div className="ab-sticky">
         <motion.div className="ab-fall" style={{ scale: zoom, transformOrigin: `${ox}px ${oy}px` }}>
           <motion.div className="ab-cam" initial={still ? false : { y: CAM.y[0] }} animate={go && !still ? CAM : undefined} transition={CAM_T}>
-          <div className="ab-stage" style={{ width: SW, height: SH, left, top, transform: `scale(${s})` }}>
-            <motion.h1 className="ab-who hand" style={{ opacity: idle ? title : 0 }} initial={false}
-              animate={idle ? { scale: [0.6, 1.08, 1], y: [24, 0, 0] } : { scale: 0.6 }} transition={{ duration: 0.55, times: [0, 0.6, 1] }}>
-              WHO IS <span className="ab-he">HE</span><span className="ab-q">?</span>
-            </motion.h1>
-            <div className="ab-canvas" style={{ left: CANVAS.x, top: CANVAS.y, transform: `scale(${CANVAS.scale})` }}>
-              {go && <DeskLayers plain yStart={yStart} idle={idle} onIdle={() => setIdle(true)} />}
+            <div className="ab-stage" style={{ width: SW, height: SH, left, top, transform: `scale(${s})` }}>
+              <motion.h1 className="ab-who hand" style={{ opacity: idle ? title : 0 }} initial={false}
+                animate={idle ? { scale: [0.6, 1.08, 1], y: [24, 0, 0] } : { scale: 0.6 }} transition={{ duration: 0.55, times: [0, 0.6, 1] }}>
+                WHO IS <span className="ab-he">HE</span><span className="ab-q">?</span>
+              </motion.h1>
+              <Pool light={light} fade={lightsOut} />
+              <div className="ab-canvas" style={{ left: CANVAS.x, top: CANVAS.y, transform: `scale(${CANVAS.scale})` }}>
+                {go && <DeskLayers plain yStart={yStart} idle={idle} onIdle={() => setIdle(true)} />}
+              </div>
+              <Bulb light={light} fade={lightsOut} swing={swing} />
             </div>
-            <Bulb light={light} fade={lightsOut} />
-          </div>
           </motion.div>
         </motion.div>
         <motion.p className="ab-cue hand" style={{ opacity: idle ? cue : 0 }}>scroll →</motion.p>
