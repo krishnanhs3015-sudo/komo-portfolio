@@ -5,6 +5,7 @@ import { asset } from '../asset'
 import Bulb, { Pool } from './Bulb'
 import { click } from './click'
 import Footer from './Footer'
+import Table from './Table'
 import './about.css'
 
 // About: three scenes driven by scroll, pinned to the screen.
@@ -157,9 +158,7 @@ export default function About() {
         <motion.p className="ab-cue hand" style={{ opacity: idle ? cue : 0 }}>scroll →</motion.p>
 
         <motion.div className="ab-scene" style={{ x: sceneX }}>
-          <section className="ab-slide ab-table" aria-label="About, at the table">
-            <motion.img style={{ scale: tableScale }} src={asset('brand/about/table.webp')} alt="Komo's table seen from above, with stickers, scissors and paper" draggable={false} />
-          </section>
+          <Table vp={vp} scale={tableScale} />
           <Footer on={footerOn} />
         </motion.div>
       </div>

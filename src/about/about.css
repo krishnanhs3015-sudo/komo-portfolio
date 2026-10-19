@@ -12,7 +12,13 @@
 .ab-scene { position: absolute; top: 0; left: 0; height: 100%; width: 200%; display: flex; will-change: transform; }
 .ab-slide { position: relative; width: 50%; height: 100%; overflow: hidden; flex: none; }
 .ab-table { background: #f9eee1; transform-origin: 50% 50%; }
-.ab-table img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; }
+.ab-table-fit { position: absolute; inset: 0; will-change: transform; }
+.ab-table-stage { position: absolute; transform-origin: 0 0; }
+.tb-img { position: absolute; display: block; user-select: none; pointer-events: none; }
+.tb-full { left: 0; top: 0; width: 100%; height: 100%; }
+.tb-scis, .tb-card, .tb-eyes { position: absolute; }
+.tb-scis { cursor: pointer; }
+.tb-pupil { position: absolute; border-radius: 50%; background: #262642; will-change: transform; }
 .ab-footer { background: var(--blue); color: var(--cream); display: flex; flex-direction: column; justify-content: space-between; }
 .af-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px 56px; padding: clamp(68px, 5.5vw, 88px) clamp(20px, 3vw, 48px) 0; flex-wrap: wrap; }
 .af-contact { display: flex; flex-direction: column; min-width: 0; flex: 1 1 420px; }
