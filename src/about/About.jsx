@@ -18,15 +18,28 @@ const CANVAS = { x: 349, y: 261, scale: 743 / 2000 } // where the 2000px desk ca
 const ZOOM_AT = { x: 349 + 800 * CANVAS.scale, y: 261 + 1500 * CANVAS.scale } // the dark opening under the desk
 const SECTION_VH = 600
 
-// camera: starts above, glides down with the falling desk (same 1.9s as the fall), jolts on the
-// first landing (0.55) and nudges on the second (0.85)
+// stage fit: whole frame on wide screens, big and bottom-anchored on phones
+function fit(w, h) {
+  const portrait = w / h < 0.9
+  const s = portrait ? w / 675 : Math.min(w / SW, h / SH)
+  return { s, left: (w - SW * s) / 2, top: portrait ? h - SH * s : (h - SH * s) / 2 }
+}
+// how far the camera sits below its resting frame during the fall: just enough to keep the bulb
+// (glass ends at stage y ~207) above the top of the screen
+const low = ({ s, top }) => top + 230 * s
+
+// camera, part 1: glides down with the falling desk (same 1.9s as the fall) into a low shot,
+// jolts on the first landing (0.55) and nudges on the second (0.85). y is in screen heights.
 const CAM = {
-  y: ['55vh', '0vh', '1.6vh', '-1vh', '0.5vh', '0vh', '0vh', '0.5vh', '0vh'],
+  y: [0.55, 0, 0.016, -0.01, 0.005, 0, 0, 0.005, 0],
   x: [0, 0, -6, 7, -4, 0, 0, 2, 0],
   rotate: [0, 0, -0.4, 0.3, -0.15, 0, 0, 0, 0],
 }
-const LAND = 0.55 * 1.9 // seconds from the start of the fall to the desk's first touch-down
 const CAM_T = { duration: 1.9, times: [0, 0.55, 0.58, 0.62, 0.66, 0.71, 0.85, 0.88, 1], ease: ['easeIn', 'easeOut', 'easeInOut', 'easeInOut', 'easeOut', 'linear', 'easeOut', 'easeIn'] }
+// camera, part 2: once the desk has settled, tilt up to find the bulb
+const TILT_AT = 2.1 // seconds after the fall starts
+const TILT = { duration: 1.5, ease: [0.6, 0, 0.25, 1] }
+const LIGHT_AT = 0.85 // of the tilt: the bulb catches just before the camera comes to rest
 
 // the bulb catching: on, off, half, off, on
 const FLICK_ON = { to: [0, 1, 0.05, 0, 0.85, 0.1, 1, 0.55, 1], duration: 1.3, times: [0, 0.06, 0.12, 0.3, 0.36, 0.44, 0.6, 0.7, 1] }
@@ -36,8 +49,8 @@ const DIPS = [
   { to: [1, 0.15, 0.9, 0.2, 1], duration: 0.4 },
   { to: [1, 0.6, 1], duration: 0.12 },
 ]
-// the landing knocks the bulb into a swing that dies down (degrees)
-const SWING = { to: [0, 2.6, -2, 1.4, -0.9, 0.5, -0.2, 0], duration: 3.2, times: [0, 0.1, 0.26, 0.42, 0.58, 0.74, 0.88, 1] }
+// the bulb is still swaying from the landing when the camera finds it (degrees)
+const SWING = { to: [2.2, -1.6, 1.1, -0.6, 0.25, 0], duration: 3.4 }
 
 export default function About() {
   const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight })
@@ -62,28 +75,41 @@ export default function About() {
   }, [])
   useEffect(() => { if (idle) document.documentElement.style.overflow = '' }, [idle])
 
-  // dark until the desk first hits the floor; the jolt swings the bulb and knocks it on,
-  // then it keeps dipping now and then. Each time it catches, it clicks.
+  // in the dark the camera follows the desk down to a low shot, then tilts up to the bulb (which only
+  // hangs there once the desk has landed); it flickers on as the camera arrives, then keeps dipping
+  // now and then. Each time it catches, it clicks.
   const still = calm()
   const light = useMotionValue(still ? 1 : 0)
   const swing = useMotionValue(0)
+  const hung = useMotionValue(still ? 1 : 0)
+  const camX = useMotionValue(0)
+  const camR = useMotionValue(0)
+  const camY = useMotionValue(still ? 0 : CAM.y[0] * window.innerHeight - low(fit(window.innerWidth, window.innerHeight)))
   useEffect(() => {
     if (!go || still) return
-    let ctl, sw, t
+    const h = window.innerHeight
+    const off = low(fit(window.innerWidth, h))
+    const ctls = [
+      animate(camY, CAM.y.map((v) => v * h - off), CAM_T),
+      animate(camX, CAM.x, CAM_T),
+      animate(camR, CAM.rotate, CAM_T),
+    ]
+    let t
     const dip = () => {
       t = setTimeout(() => {
         const d = DIPS[Math.floor(Math.random() * DIPS.length)]
-        ctl = animate(light, d.to, { duration: d.duration, ease: 'linear', onComplete: dip })
+        ctls.push(animate(light, d.to, { duration: d.duration, ease: 'linear', onComplete: dip }))
       }, 2500 + Math.random() * 4500)
     }
     t = setTimeout(() => {
-      sw = animate(swing, SWING.to, { duration: SWING.duration, times: SWING.times, ease: 'easeInOut' })
+      hung.set(1) // still off-screen above the shot
+      ctls.push(animate(camY, 0, TILT), animate(swing, SWING.to, { duration: SWING.duration, ease: 'easeInOut' }))
       t = setTimeout(() => {
-        ctl = animate(light, FLICK_ON.to, { duration: FLICK_ON.duration, times: FLICK_ON.times, ease: 'linear', onComplete: dip })
-      }, 150)
-    }, LAND * 1000)
-    return () => { clearTimeout(t); ctl?.stop(); sw?.stop() }
-  }, [go, still, light, swing])
+        ctls.push(animate(light, FLICK_ON.to, { duration: FLICK_ON.duration, times: FLICK_ON.times, ease: 'linear', onComplete: dip }))
+      }, TILT.duration * LIGHT_AT * 1000)
+    }, TILT_AT * 1000)
+    return () => { clearTimeout(t); ctls.forEach((c) => c.stop()) }
+  }, [go, still, light, swing, hung, camX, camY, camR])
   useEffect(() => {
     let prev = light.get()
     return light.on('change', (v) => {
@@ -97,11 +123,7 @@ export default function About() {
 
   useMotionValueEvent(p, 'change', (v) => { if (v > 0.8) setFooterOn(true) })
 
-  // stage fit: whole frame on wide screens, big and bottom-anchored on phones
-  const portrait = vp.w / vp.h < 0.9
-  const s = portrait ? vp.w / 675 : Math.min(vp.w / SW, vp.h / SH)
-  const left = (vp.w - SW * s) / 2
-  const top = portrait ? vp.h - SH * s : (vp.h - SH * s) / 2
+  const { s, left, top } = fit(vp.w, vp.h)
   const ox = left + ZOOM_AT.x * s
   const oy = top + ZOOM_AT.y * s
   const yStart = -(top + CANVAS.y * s) / (CANVAS.scale * s) - 2100
@@ -118,7 +140,7 @@ export default function About() {
       <a className="about-back hand" href="#/">← Home</a>
       <div className="ab-sticky">
         <motion.div className="ab-fall" style={{ scale: zoom, transformOrigin: `${ox}px ${oy}px` }}>
-          <motion.div className="ab-cam" initial={still ? false : { y: CAM.y[0] }} animate={go && !still ? CAM : undefined} transition={CAM_T}>
+          <motion.div className="ab-cam" style={{ x: camX, y: camY, rotate: camR }}>
             <div className="ab-stage" style={{ width: SW, height: SH, left, top, transform: `scale(${s})` }}>
               <motion.h1 className="ab-who hand" style={{ opacity: idle ? title : 0 }} initial={false}
                 animate={idle ? { scale: [0.6, 1.08, 1], y: [24, 0, 0] } : { scale: 0.6 }} transition={{ duration: 0.55, times: [0, 0.6, 1] }}>
@@ -128,7 +150,7 @@ export default function About() {
               <div className="ab-canvas" style={{ left: CANVAS.x, top: CANVAS.y, transform: `scale(${CANVAS.scale})` }}>
                 {go && <DeskLayers plain yStart={yStart} idle={idle} onIdle={() => setIdle(true)} />}
               </div>
-              <Bulb light={light} fade={lightsOut} swing={swing} />
+              <Bulb light={light} fade={lightsOut} swing={swing} hung={hung} />
             </div>
           </motion.div>
         </motion.div>

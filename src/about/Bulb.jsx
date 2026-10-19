@@ -3,7 +3,7 @@ import { motion, useTransform } from 'framer-motion'
 
 // Hanging bulb + the darkness it cuts through, drawn in the 1440x1024 About stage.
 // light (0..1) = how bright the bulb is; fade (0..1) = scroll fade for the darkness and beam;
-// swing = degrees the bulb and its beam hang off vertical.
+// swing = degrees the bulb and its beam hang off vertical; hung (0/1) = whether the bulb is there yet.
 // The darkness is one huge navy rect with the lit area masked out, so it covers the whole screen.
 const X = 720 // bulb centre
 const Y = 6 // top of the socket
@@ -23,7 +23,7 @@ function useSwing(swing) {
   return (i) => (el) => { refs.current[i] = el }
 }
 
-export default function Bulb({ light, fade, swing }) {
+export default function Bulb({ light, fade, swing, hung }) {
   const dark = useTransform(fade, (f) => f * 0.8)
   const beam = useTransform([light, fade], ([l, f]) => l * f * 0.14)
   const hang = useSwing(swing)
@@ -55,7 +55,7 @@ export default function Bulb({ light, fade, swing }) {
       {/* the dark room, with the lit area cut out */}
       <motion.rect {...BIG} fill="#0b1226" mask="url(#ab-lit)" style={{ opacity: dark }} />
 
-      <g ref={hang(1)}>
+      <motion.g ref={hang(1)} style={{ opacity: hung }}>
         {/* the visible beam */}
         <motion.polygon points={CONE} fill="#fff4e2" style={{ opacity: beam }} />
 
@@ -68,7 +68,7 @@ export default function Bulb({ light, fade, swing }) {
           <path d={GLASS} fill="#3a4466" />
           <motion.path d={GLASS} fill="#fff4e2" style={{ opacity: light }} />
         </g>
-      </g>
+      </motion.g>
     </svg>
   )
 }
