@@ -164,3 +164,4 @@
 .m-latest > .m-fan { position: relative; flex: 1 1 auto; width: 100%; min-height: 96px; margin: 0; }
 .m-latest > .m-fan i { left: 50%; bottom: 6px; width: 84px; height: 100px; margin-left: -42px; }
 .m-latest > .m-open { margin-top: 8px; transform: none; }
+.detail .d-title { margin: 36px 0 6px; }

@@ -69,3 +69,6 @@
   .af-nav a, .af-nav .af-head { min-height: 44px; display: flex; align-items: center; }
   .about-back, .brand-back { min-height: 44px; display: inline-flex; align-items: center; padding-right: 12px; }
 }
+/* phone table: the mat is drawn in CSS so it can be portrait-shaped */
+.tb-mat { position: absolute; box-sizing: border-box; background: #eecf48; border: 3px solid #2a4a86; border-radius: 22px; }
+.tb-mat::after { content: ''; position: absolute; inset: 11px; border: 3px dashed #4a6fb0; border-radius: 14px; }
