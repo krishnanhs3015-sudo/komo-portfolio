@@ -100,7 +100,7 @@ export default function Footer({ on }) {
       <div className="af-top">
         <div className="af-contact">
           <Typed className="af-small" text="Have an awesome project?" on={on} delay={200} />
-          <Typed as="p" className="af-big af-cm" text="CONTACT ME" on={on} delay={1100} swap="Wanna talk to me?" hover={hc}
+          <Typed as="a" href="#/contact" className="af-big af-cm" text="CONTACT ME" on={on} delay={1100} swap="Wanna talk to me?" hover={hc}
             onPointerEnter={() => setHc(true)} onPointerLeave={() => setHc(false)} />
           <Typed className="af-small af-brief" text="Or send your brief here" on={on} delay={1900} />
           <Typed as="a" className="af-big af-mail" href={`mailto:${EMAIL}`} text={EMAIL} on={on} delay={2900} swap="Ooooo, exciting! What project can we do together?" hover={hm}
