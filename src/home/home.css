@@ -69,3 +69,11 @@
 .wordmark-top { position: absolute; left: 50%; top: clamp(110px, 20vh, 210px); transform: translateX(-50%); width: min(60vw, 300px); margin: 0; line-height: 0; z-index: 5; pointer-events: none; }
 .wordmark-top img { width: 100%; height: auto; display: block; }
 .home.leaving .wordmark-top { opacity: 0; transition: opacity .45s ease; }
+
+/* entrance: Komo pops up from below, blinks twice, waves */
+.enter { position: absolute; inset: 0; will-change: transform; }
+.blinker.force { animation: blink2 1s ease-in-out 1; }
+@keyframes blink2 { 0%, 100% { transform: scaleY(1); } 14% { transform: scaleY(.08); } 30% { transform: scaleY(1); } 52% { transform: scaleY(.08); } 68% { transform: scaleY(1); } }
+.arm { position: absolute; z-index: 4; pointer-events: none; will-change: transform; }
+.arm svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.arm-hand { z-index: 1; }

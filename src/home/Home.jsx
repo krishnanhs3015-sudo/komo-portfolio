@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform } from 'framer-motion'
-import { blip, isMuted, setMuted, unlock, whoosh } from './sound'
+import { blip, isMuted, pop, setMuted, unlock, whoosh } from './sound'
+import Arm, { ARM_H } from './Arm'
 import { asset } from '../asset'
 import './home.css'
 
@@ -90,7 +91,14 @@ export default function Home({ onVeil, onNavigate }) {
   const [fit, setFit] = useState(1)
   const [portrait, setPortrait] = useState(false) // tall, narrow screens (phones)
   const [active, setActive] = useState(null) // sticker whose bubble is open
-  const [intro, setIntro] = useState(-1)      // -1 waiting, 0.. which intro line is showing, INTRO.length = finished
+  // first visit of the session: Komo pops up, blinks and waves before introducing himself
+  const enter = useRef(null)
+  if (enter.current === null) {
+    let seen = false
+    try { seen = window.sessionStorage.getItem('komo-entered') === '1' } catch { /* storage unavailable */ }
+    enter.current = !reduce && !seen
+  }
+  const [intro, setIntro] = useState(enter.current ? -2 : -1) // -2 entrance playing, -1 waiting, 0.. which intro line is showing, INTRO.length = finished
   const pointerType = useRef('mouse')
   const eyesRef = useRef(null)
   const lastMove = useRef(0)
@@ -117,6 +125,11 @@ export default function Home({ onVeil, onNavigate }) {
   const skipRef = useRef(false)
   const pupilX = useMotionValue(0)
   const pupilY = useMotionValue(0)
+  const enterY = useMotionValue(enter.current ? 1200 : 0) // how far below the screen Komo starts
+  const armY = useMotionValue(ARM_H + 40)
+  const armSwing = useMotionValue(0)
+  const handFlutter = useMotionValue(0)
+  const [forceBlink, setForceBlink] = useState(false)
 
   useEffect(() => {
     // fit the whole stage; on tall/narrow screens fill the width with the character instead (side margins are cropped)
@@ -199,6 +212,44 @@ export default function Home({ onVeil, onNavigate }) {
     return () => clearTimeout(t0)
   }, [])
   useEffect(() => { if (active) setIntro(INTRO.length) }, [active]) // hovering an icon ends the intro
+
+  // the entrance: pop up with a bounce, blink twice, wave, then the intro starts. Any click or key skips it.
+  useEffect(() => {
+    if (!enter.current) return
+    try { window.sessionStorage.setItem('komo-entered', '1') } catch { /* storage unavailable */ }
+    let dead = false
+    const live = []
+    const run = (c) => { live.push(c); return c }
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+    const skip = () => {
+      dead = true
+      live.forEach((c) => c.stop())
+      enterY.set(0); armY.set(ARM_H + 40); armSwing.set(0); handFlutter.set(0); setForceBlink(false)
+      setIntro((i) => (i === -2 ? 0 : i))
+    }
+    window.addEventListener('pointerdown', skip)
+    window.addEventListener('keydown', skip)
+    ;(async () => {
+      await sleep(350); if (dead) return
+      pop(); look(0, 0.2, false)
+      await run(animate(enterY, 0, { type: 'spring', stiffness: 120, damping: 9, restDelta: 0.5 })); if (dead) return
+      await sleep(220); if (dead) return
+      setForceBlink(true); await sleep(1050); if (dead) return
+      setForceBlink(false)
+      await sleep(150); if (dead) return
+      await run(animate(armY, 0, { duration: 0.5, ease: [0.2, 0.9, 0.3, 1] })); if (dead) return
+      const d = 2.4 // the wave: the arm swings from the shoulder, the hand flutters at the wrist, the body nods along
+      run(animate(charR, [0, -1.6, 1.3, -1.1, 0.9, -0.4, 0], { duration: d, ease: 'easeInOut' }))
+      run(animate(charY, [0, 8, 0, 7, 0, 5, 0], { duration: d, ease: 'easeInOut' }))
+      run(animate(handFlutter, [0, 20, -18, 18, -15, 11, -6, 0], { duration: d, ease: 'easeInOut' }))
+      await run(animate(armSwing, [0, -17, 12, -15, 11, -8, 3, 0], { duration: d, ease: 'easeInOut' })); if (dead) return
+      await run(animate(armY, ARM_H + 40, { duration: 0.45, ease: 'easeIn' })); if (dead) return
+      await sleep(250); if (dead) return
+      setIntro((i) => (i === -2 ? 0 : i))
+    })()
+    return () => { dead = true; live.forEach((c) => c.stop()); window.removeEventListener('pointerdown', skip); window.removeEventListener('keydown', skip) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   useEffect(() => {
     if (intro >= 0 && intro < INTRO.length) look(0.75, -0.5, false) // glance toward the bubble
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -298,6 +349,7 @@ export default function Home({ onVeil, onNavigate }) {
         )}
 
         <motion.div className="camera" style={{ x: panX, y: panY, scale: camScale, transformOrigin: `${MOUTH_CENTER.x}px ${MOUTH_CENTER.y}px` }}>
+        <motion.div className="enter" style={{ y: enterY }}>
         <motion.div className="char" style={{ x: charX, y: charY, rotate: charR }}>
           <div className="bob">
             <img className="layer" style={canvasBox} src={asset('home/head.webp')} alt="KOMO.IS character" draggable={false} />
@@ -307,7 +359,7 @@ export default function Home({ onVeil, onNavigate }) {
               <motion.img className="lip lip-bottom" src={asset('home/mouth.webp')} alt="" draggable={false} style={{ y: lipDown }} />
             </div>
             <motion.div className="layer eyes" ref={eyesRef} style={{ ...canvasBox, scale: eyeScale, transformOrigin: '50% 45.9%' }}>
-              <div className="blinker">
+              <div className={'blinker' + (forceBlink ? ' force' : '')}>
               <img className="fill" src={asset('home/whites.webp')} alt="" draggable={false} />
               <div className="pupil-mask">
                 <motion.img className="fill" src={asset('home/pupils.webp')} alt="" draggable={false} style={{ x: pupilX, y: pupilY }} />
@@ -316,6 +368,8 @@ export default function Home({ onVeil, onNavigate }) {
               </div>
             </motion.div>
             <motion.img className="layer" style={{ ...canvasBox, y: browY }} src={asset('home/brows.webp')} alt="" draggable={false} />
+
+            {enter.current && <Arm left={portrait ? 880 : 1130} top={500} y={armY} swing={armSwing} flutter={handFlutter} />}
 
             {STICKERS.map((s, i) => (
               <motion.a key={s.id} className="sticker" href={s.href} aria-label={s.label}
@@ -327,6 +381,7 @@ export default function Home({ onVeil, onNavigate }) {
               </motion.a>
             ))}
           </div>
+        </motion.div>
         </motion.div>
 
         <AnimatePresence>

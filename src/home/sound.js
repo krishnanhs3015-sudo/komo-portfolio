@@ -68,3 +68,21 @@ export function whoosh() {
   src.start(t)
   src.stop(t + dur + 0.05)
 }
+
+// a soft "boing" for Komo popping up: a sine that sweeps up and settles
+export function pop() {
+  if (!ctx || !unlocked || muted) return
+  const t = ctx.currentTime
+  const osc = ctx.createOscillator()
+  const gain = ctx.createGain()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(180, t)
+  osc.frequency.exponentialRampToValueAtTime(520, t + 0.12)
+  osc.frequency.exponentialRampToValueAtTime(260, t + 0.3)
+  gain.gain.setValueAtTime(0.0001, t)
+  gain.gain.exponentialRampToValueAtTime(0.12, t + 0.02)
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.32)
+  osc.connect(gain).connect(ctx.destination)
+  osc.start(t)
+  osc.stop(t + 0.35)
+}
