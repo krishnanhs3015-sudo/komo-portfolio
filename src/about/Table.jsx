@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
 import { asset } from '../asset'
+import Cards from './Cards'
 
 // The table, seen from above, built from separate pieces. Each piece is [x, y, w, h, f]: where it sits, its
 // natural size in the 1440x1024 Figma frame, and the scale f it is drawn at. Wide screens use the Figma layout
-// (the whole frame is fitted to the screen and the cream fills the rest, so nothing is cut off). Phones held
+// (the whole frame is fitted to the screen and the blue fills the rest, so nothing is cut off). Phones held
 // upright get their own arrangement in a 420-wide column, because the wide table would be tiny or cropped.
 const img = (n) => asset(`brand/about/table/${n}.webp`)
 const WIDE = { w: 1440, h: 1024, mat: [98, 201, 1244, 668, 1], box: [1222, 723, 240.4, 292, 1], st1: [-27, 717, 178, 188.9, 1], st2: [0, 602, 177.5, 174.9, 1], st3: [70, 771, 221.2, 192.7, 1], sheetR: [644, 777, 417, 422, 1], sheetB: [323, 839, 450.3, 450.3, 1], scis: [1207, 47, 376.2, 354.8, 1], card: [129, 46, 317.6, 223.7, 1] }
@@ -19,7 +20,7 @@ const SNIP = { snip: (side) => ({ rotate: side === 'a' ? [0, -30, 0, -30, 0] : [
 
 const box = ([x, y, w, h, f]) => ({ left: x, top: y, width: w, height: h, transform: `scale(${f})`, transformOrigin: '0 0' })
 
-export default function Table({ vp, scale }) {
+export default function Table({ vp, scale, p, spans }) {
   const portrait = vp.w / vp.h < 0.9
   const L = portrait ? TALL : WIDE
   const s = portrait ? vp.w / L.w : Math.min(vp.w / L.w, vp.h / L.h)
@@ -62,6 +63,8 @@ export default function Table({ vp, scale }) {
           </motion.div>
 
           {['sheetR', 'sheetB'].map(flat)}
+
+          <Cards p={p} spans={spans} portrait={portrait} />
 
           <div className="tb-card" style={box(L.card)}>
             <img className="tb-img tb-full" src={img('card')} alt="Komo's photo card with huge eyes" draggable={false} />

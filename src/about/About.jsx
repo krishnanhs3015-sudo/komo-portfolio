@@ -17,7 +17,13 @@ const SW = 1440 // Figma frame
 const SH = 1024
 const CANVAS = { x: 349, y: 261, scale: 743 / 2000 } // where the 2000px desk canvas sits in the frame
 const ZOOM_AT = { x: 349 + 800 * CANVAS.scale, y: 261 + 1500 * CANVAS.scale } // the dark opening under the desk
-const SECTION_VH = 600
+const SECTION_VH = 1050
+const at = (vh) => vh / SECTION_VH // scroll positions below are written in screen-heights (vh) from the top
+// the story cards on the table: one slice of scroll each, after the table has slid in
+const CARD_START = 330
+const CARD_VH = 230
+const CARD_SPANS = [0, 1].map((i) => [at(CARD_START + i * CARD_VH), at(CARD_START + (i + 1) * CARD_VH)])
+const FOOTER_AT = CARD_START + 2 * CARD_VH + 20 // footer starts sliding in here
 
 // stage fit: whole frame on wide screens, big and bottom-anchored on phones
 function fit(w, h) {
@@ -122,19 +128,19 @@ export default function About() {
   const { scrollYProgress } = useScroll({ target: section, offset: ['start start', 'end end'] })
   const p = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.4 })
 
-  useMotionValueEvent(p, 'change', (v) => { if (v > 0.8) setFooterOn(true) })
+  useMotionValueEvent(p, 'change', (v) => { if (v > at(FOOTER_AT + 84)) setFooterOn(true) })
 
   const { s, left, top } = fit(vp.w, vp.h)
   const ox = left + ZOOM_AT.x * s
   const oy = top + ZOOM_AT.y * s
   const yStart = -(top + CANVAS.y * s) / (CANVAS.scale * s) - 2100
 
-  const zoom = useTransform(p, [0.05, 0.36], [1, 9])
-  const sceneX = useTransform(p, [0.3, 0.52, 0.66, 0.92], ['50%', '0%', '0%', '-50%']) // % of the 200%-wide row = one screen each
-  const tableScale = useTransform(p, [0.3, 0.55], [1.2, 1])
-  const title = useTransform(p, [0.0, 0.08], [1, 0])
-  const cue = useTransform(p, [0.0, 0.05], [1, 0])
-  const lightsOut = useTransform(p, [0.02, 0.12], [1, 0]) // the room brightens as the zoom starts
+  const zoom = useTransform(p, [at(30), at(216)], [1, 9])
+  const sceneX = useTransform(p, [at(180), at(312), at(FOOTER_AT), at(FOOTER_AT + 156)], ['50%', '0%', '0%', '-50%']) // % of the 200%-wide row = one screen each
+  const tableScale = useTransform(p, [at(180), at(330)], [1.2, 1])
+  const title = useTransform(p, [0, at(48)], [1, 0])
+  const cue = useTransform(p, [0, at(30)], [1, 0])
+  const lightsOut = useTransform(p, [at(12), at(72)], [1, 0]) // the room brightens as the zoom starts
 
   return (
     <main ref={section} className="about" style={{ height: `${SECTION_VH}vh` }}>
@@ -158,7 +164,7 @@ export default function About() {
         <motion.p className="ab-cue hand" style={{ opacity: idle ? cue : 0 }}>scroll →</motion.p>
 
         <motion.div className="ab-scene" style={{ x: sceneX }}>
-          <Table vp={vp} scale={tableScale} />
+          <Table vp={vp} scale={tableScale} p={p} spans={CARD_SPANS} />
           <Footer on={footerOn} />
         </motion.div>
       </div>
