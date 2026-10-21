@@ -3,7 +3,6 @@ import { motion } from 'framer-motion'
 import { asset } from '../asset'
 import './loader.css'
 
-// Each Komo alternates two poses (the second has the legs mirrored) on every landing, so the hop reads as a run.
 // Loading screen, first visit of a session: Komo's three run on the spot in the middle, popping up one after
 // another from the bottom; the big logo sweeps in front of them; then the whole screen lifts away into the site.
 // It holds until the images for the page are loaded (but never longer than the safety limit).
@@ -55,7 +54,6 @@ export default function Loader({ preload, onReveal, onDone }) {
             initial={{ y: '125%' }} animate={{ y: '0%' }} transition={{ type: 'spring', stiffness: 150, damping: 11, delay: c.delay }}>
             <div className="ld-bob" style={{ '--bob': c.bob, '--lift': c.lift, '--tilt': c.tilt }}>
               <img src={asset(`loader/${c.id}.webp`)} alt={c.alt} draggable={false} />
-              <img className="ld-b" src={asset(`loader/${c.id}-b.webp`)} alt="" draggable={false} />
             </div>
           </motion.div>
         ))}
