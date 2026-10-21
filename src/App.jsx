@@ -5,6 +5,8 @@ import ContactFlow from './contact/ContactFlow'
 import Projects from './projects/Projects'
 import Brand from './brand/Brand'
 import About from './about/About'
+import Loader from './loader/Loader'
+import { preloadFor } from './loader/assets'
 import DeskDrop from './test/DeskDrop'
 import ProjectDetail from './projects/ProjectDetail'
 import './fonts.css'
@@ -50,6 +52,18 @@ function Soon({ name }) {
 export default function App() {
   const [route, setRoute] = useState(read())
   const [veil, setVeil] = useState(0)
+  // first visit of a session: the loading screen plays and the page is only shown as it lifts away
+  const [loader, setLoader] = useState(() => {
+    let seen = false
+    try { seen = window.sessionStorage.getItem('komo-loaded') === '1' } catch { /* storage unavailable */ }
+    return !seen && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  })
+  const [pageReady, setPageReady] = useState(!loader)
+  const onReveal = useCallback(() => { setTimeout(() => setPageReady(true), 450) }, [])
+  const onLoaded = useCallback(() => {
+    try { window.sessionStorage.setItem('komo-loaded', '1') } catch { /* storage unavailable */ }
+    setLoader(false)
+  }, [])
   const onVeil = useCallback((v) => setVeil(v), [])
   const onNavigate = useCallback((href) => {
     window.location.hash = href
@@ -71,8 +85,9 @@ export default function App() {
     : <Soon name={route} />
   return (
     <>
-      {page}
-      <RotateHint route={route} />
+      {pageReady && page}
+      {pageReady && <RotateHint route={route} />}
+      {loader && <Loader preload={preloadFor(route)} onReveal={onReveal} onDone={onLoaded} />}
       <motion.div className="veil" initial={false} animate={{ opacity: veil }} transition={{ duration: veil ? 0.55 : 0.6, ease: 'easeInOut' }} style={{ pointerEvents: veil ? 'auto' : 'none' }} />
     </>
   )

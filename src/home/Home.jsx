@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform } from 'framer-motion'
 import { blip, isMuted, pop, setMuted, unlock, whoosh } from './sound'
-import Arm, { ARM_H } from './Arm'
 import { asset } from '../asset'
 import './home.css'
 
@@ -91,7 +90,7 @@ export default function Home({ onVeil, onNavigate }) {
   const [fit, setFit] = useState(1)
   const [portrait, setPortrait] = useState(false) // tall, narrow screens (phones)
   const [active, setActive] = useState(null) // sticker whose bubble is open
-  // first visit of the session: Komo pops up, blinks and waves before introducing himself
+  // first visit of the session: Komo pops up, blinks before introducing himself
   const enter = useRef(null)
   if (enter.current === null) {
     let seen = false
@@ -126,9 +125,6 @@ export default function Home({ onVeil, onNavigate }) {
   const pupilX = useMotionValue(0)
   const pupilY = useMotionValue(0)
   const enterY = useMotionValue(enter.current ? 1200 : 0) // how far below the screen Komo starts
-  const armY = useMotionValue(ARM_H + 40)
-  const armSwing = useMotionValue(0)
-  const handFlutter = useMotionValue(0)
   const [forceBlink, setForceBlink] = useState(false)
 
   useEffect(() => {
@@ -213,7 +209,7 @@ export default function Home({ onVeil, onNavigate }) {
   }, [])
   useEffect(() => { if (active) setIntro(INTRO.length) }, [active]) // hovering an icon ends the intro
 
-  // the entrance: pop up with a bounce, blink twice, wave, then the intro starts. Any click or key skips it.
+  // the entrance: pop up with a bounce, blink twice, then the intro starts. Any click or key skips it. (The wave is parked in Arm.jsx.)
   useEffect(() => {
     if (!enter.current) return
     try { window.sessionStorage.setItem('komo-entered', '1') } catch { /* storage unavailable */ }
@@ -224,7 +220,7 @@ export default function Home({ onVeil, onNavigate }) {
     const skip = () => {
       dead = true
       live.forEach((c) => c.stop())
-      enterY.set(0); armY.set(ARM_H + 40); armSwing.set(0); handFlutter.set(0); setForceBlink(false)
+      enterY.set(0); setForceBlink(false)
       setIntro((i) => (i === -2 ? 0 : i))
     }
     window.addEventListener('pointerdown', skip)
@@ -236,14 +232,6 @@ export default function Home({ onVeil, onNavigate }) {
       await sleep(220); if (dead) return
       setForceBlink(true); await sleep(1050); if (dead) return
       setForceBlink(false)
-      await sleep(150); if (dead) return
-      await run(animate(armY, 0, { duration: 0.5, ease: [0.2, 0.9, 0.3, 1] })); if (dead) return
-      const d = 2.4 // the wave: the arm swings from the shoulder, the hand flutters at the wrist, the body nods along
-      run(animate(charR, [0, -1.6, 1.3, -1.1, 0.9, -0.4, 0], { duration: d, ease: 'easeInOut' }))
-      run(animate(charY, [0, 8, 0, 7, 0, 5, 0], { duration: d, ease: 'easeInOut' }))
-      run(animate(handFlutter, [0, 20, -18, 18, -15, 11, -6, 0], { duration: d, ease: 'easeInOut' }))
-      await run(animate(armSwing, [0, -17, 12, -15, 11, -8, 3, 0], { duration: d, ease: 'easeInOut' })); if (dead) return
-      await run(animate(armY, ARM_H + 40, { duration: 0.45, ease: 'easeIn' })); if (dead) return
       await sleep(250); if (dead) return
       setIntro((i) => (i === -2 ? 0 : i))
     })()
@@ -368,8 +356,6 @@ export default function Home({ onVeil, onNavigate }) {
               </div>
             </motion.div>
             <motion.img className="layer" style={{ ...canvasBox, y: browY }} src={asset('home/brows.webp')} alt="" draggable={false} />
-
-            {enter.current && <Arm left={portrait ? 880 : 1130} top={500} y={armY} swing={armSwing} flutter={handFlutter} />}
 
             {STICKERS.map((s, i) => (
               <motion.a key={s.id} className="sticker" href={s.href} aria-label={s.label}
