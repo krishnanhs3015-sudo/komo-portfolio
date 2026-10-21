@@ -1,8 +1,11 @@
-.loader { position: fixed; inset: 0; z-index: 200; background: var(--blue); overflow: hidden; border-radius: 0 0 50% 50% / 0 0 9vh 9vh; will-change: transform; --u: min(36vh, 50vw); }
+.loader { position: fixed; inset: 0; z-index: 200; background: var(--blue); overflow: hidden; border-radius: 0 0 50% 50% / 0 0 9vh 9vh; will-change: transform; --u: min(44vh, 58vw); }
 .ld-row { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%); display: flex; align-items: flex-end; gap: calc(var(--u) * 0.05); }
 .ld-pop { height: calc(var(--u) * var(--k)); will-change: transform; }
-.ld-bob { height: 100%; transform-origin: 50% 100%; animation: ldbob var(--bob) ease-in-out infinite; }
+.ld-bob { position: relative; height: 100%; transform-origin: 50% 100%; animation: ldbob var(--bob) ease-in-out infinite; }
 .ld-bob img { display: block; height: 100%; width: auto; user-select: none; pointer-events: none; }
+/* the mirrored-legs pose shows on every second hop */
+.ld-bob img.ld-b { position: absolute; left: 0; top: 0; opacity: 0; animation: ldswap calc(var(--bob) * 2) steps(1, end) infinite; }
+@keyframes ldswap { 0%, 49.99% { opacity: 0; } 50%, 100% { opacity: 1; } }
 /* running on the spot: hop, squash on landing, and a little rock */
 @keyframes ldbob {
   0%   { transform: translateY(0) scale(1.04, .94) rotate(calc(var(--tilt) * -1)); }
@@ -10,4 +13,4 @@
   100% { transform: translateY(0) scale(1.04, .94) rotate(calc(var(--tilt) * -1)); }
 }
 .ld-logo { position: absolute; left: 50%; top: 50%; width: min(78vw, 780px); margin-left: calc(min(78vw, 780px) / -2); margin-top: calc(min(78vw, 780px) * -0.17); height: auto; filter: brightness(0) invert(1) drop-shadow(0 10px 0 rgba(28, 39, 72, .35)); z-index: 2; pointer-events: none; user-select: none; }
-@media (prefers-reduced-motion: reduce) { .ld-bob { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .ld-bob, .ld-bob img.ld-b { animation: none; } }
