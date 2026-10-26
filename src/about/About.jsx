@@ -6,6 +6,7 @@ import Bulb, { Pool } from './Bulb'
 import { click } from './click'
 import Footer from './Footer'
 import Table from './Table'
+import { STORIES } from './Cards'
 import './about.css'
 
 // About: three scenes driven by scroll, pinned to the screen.
@@ -17,13 +18,13 @@ const SW = 1440 // Figma frame
 const SH = 1024
 const CANVAS = { x: 349, y: 261, scale: 743 / 2000 } // where the 2000px desk canvas sits in the frame
 const ZOOM_AT = { x: 349 + 800 * CANVAS.scale, y: 261 + 1500 * CANVAS.scale } // the dark opening under the desk
-const SECTION_VH = 1050
-const at = (vh) => vh / SECTION_VH // scroll positions below are written in screen-heights (vh) from the top
-// the story cards on the table: one slice of scroll each, after the table has slid in
+// the story cards on the table: one slice of scroll each, after the table has slid in (written in screen-heights, vh)
 const CARD_START = 330
-const CARD_VH = 230
-const CARD_SPANS = [0, 1].map((i) => [at(CARD_START + i * CARD_VH), at(CARD_START + (i + 1) * CARD_VH)])
-const FOOTER_AT = CARD_START + 2 * CARD_VH + 20 // footer starts sliding in here
+const CARD_VH = 180
+const FOOTER_AT = CARD_START + STORIES.length * CARD_VH + 20 // footer starts sliding in here
+const SECTION_VH = FOOTER_AT + 240
+const at = (vh) => vh / SECTION_VH // scroll positions below are written in screen-heights (vh) from the top
+const CARD_SPANS = STORIES.map((_, i) => [at(CARD_START + i * CARD_VH), at(CARD_START + (i + 1) * CARD_VH)])
 
 // stage fit: whole frame on wide screens, big and bottom-anchored on phones
 function fit(w, h) {
